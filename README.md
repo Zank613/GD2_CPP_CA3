@@ -57,10 +57,10 @@ Optional:
 ## Stage 1 - Core Architecture
 
 **Goal:** Build foundation correctly
-- [ ] Create `Bug` abstract base class
-- [ ] Implement fields
-- [ ] Add virtual `move()` method
-- [ ] Implement `Crawler` class
+- [x] Create `Bug` abstract base class
+- [x] Implement fields
+- [x] Add virtual `move()` method
+- [x] Implement `Crawler` class
 - [ ] Implement `Hopper` class
 - [ ] Create `Board` class
 - [ ] Store bugs using `vector<Bug*>`
@@ -127,7 +127,7 @@ Optional:
 
 ## Stage 9 - Hunter Bug
 
-- [ ] Create new derived class `HunterBug`
+- [ ] Create new derived bug class `Hunter`
 - [ ] Follow the strongest scent direction
 - [ ] Use tolerance (±0.5) for decision-making
 - [ ] Implement path memory

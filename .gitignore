@@ -1,0 +1,54 @@
+# Grabbed a .gitignore file from one of my personal projects.
+# Build directories
+build/
+cmake-build-*/
+out/
+
+# CMake generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+CTestTestfile.cmake
+Testing/
+Makefile
+
+# Itself
+.gitignore
+
+# Ninja
+.ninja_deps
+.ninja_log
+build.ninja
+
+# Executables / binaries
+*.exe
+*.out
+*.app
+*.dll
+*.so
+*.dylib
+
+# Object / compiled files
+*.o
+*.obj
+*.a
+*.lib
+*.class
+
+# Debug symbols / logs
+*.pdb
+*.log
+
+# IDE files
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary/editor files
+*.tmp
+*.swp
+*~

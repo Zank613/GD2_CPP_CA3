@@ -1,0 +1,68 @@
+#include "Bug.h"
+
+Bug::Bug(int id, std::pair<int, int> position, Direction direction, int health)
+    : id(id), position(position), direction(direction), health(health), alive(true) {
+    path.push_back(position);
+}
+
+Bug::~Bug() = default;
+
+bool Bug::isWayBlocked() const {
+    int x = position.first;
+    int y = position.second;
+
+    switch (direction) {
+        case Direction::NORTH:
+            return y == 0;
+        case Direction::EAST:
+            return x == 9;
+        case Direction::SOUTH:
+            return y == 9;
+        case Direction::WEST:
+            return x == 0;
+        default:
+            return true;
+    }
+}
+
+int Bug::getId() const {
+    return id;
+}
+
+std::pair<int, int> Bug::getPosition() const {
+    return position;
+}
+
+Direction Bug::getDirection() const {
+    return direction;
+}
+
+int Bug::getHealth() const {
+    return health;
+}
+
+bool Bug::isAlive() const {
+    return alive;
+}
+
+const std::list<std::pair<int, int>>& Bug::getPath() const {
+    return path;
+}
+
+void Bug::setPosition(const std::pair<int, int>& newPosition) {
+    position = newPosition;
+    path.push_back(newPosition);
+}
+
+void Bug::setDirection(Direction newDirection) {
+    direction = newDirection;
+}
+
+void Bug::takeDamage(int damage) {
+    health -= damage;
+
+    if (health <= 0) {
+        health = 0;
+        alive = false;
+    }
+}
