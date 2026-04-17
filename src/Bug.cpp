@@ -25,28 +25,28 @@ bool Bug::isWayBlocked() const {
     }
 }
 
+bool Bug::isAlive() const {
+    return alive;
+}
+
 int Bug::getId() const {
     return id;
-}
-
-std::pair<int, int> Bug::getPosition() const {
-    return position;
-}
-
-Direction Bug::getDirection() const {
-    return direction;
 }
 
 int Bug::getHealth() const {
     return health;
 }
 
-bool Bug::isAlive() const {
-    return alive;
+std::pair<int, int> Bug::getPosition() const {
+    return position;
 }
 
 const std::list<std::pair<int, int>>& Bug::getPath() const {
     return path;
+}
+
+Direction Bug::getDirection() const {
+    return direction;
 }
 
 void Bug::setPosition(const std::pair<int, int>& newPosition) {

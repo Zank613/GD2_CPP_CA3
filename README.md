@@ -54,16 +54,16 @@ Optional:
 
 # Roadmap
 
-## Stage 1 - Core Architecture
+## ~~Stage 1 - Core Architecture~~
 
 **Goal:** Build foundation correctly
 - [x] Create `Bug` abstract base class
 - [x] Implement fields
 - [x] Add virtual `move()` method
 - [x] Implement `Crawler` class
-- [ ] Implement `Hopper` class
-- [ ] Create `Board` class
-- [ ] Store bugs using `vector<Bug*>`
+- [x] Implement `Hopper` class
+- [x] Create `Board` class
+- [x] Store bugs using `vector<Bug*>`
 
 ## Stage 2 - File Input & Basic Features
 
@@ -74,14 +74,14 @@ Optional:
 - [ ] Implement "Find Bug by ID"
 - [ ] Basic menu system
 
-## Stage 3 - Movement System
+## ~~Stage 3 - Movement System~~
 
 **Goal:** Correct simulation behaviour
-- [ ] Implement `move()` for Crawler
-- [ ] Implement `move()` for Hopper
-- [ ] Handle board edges properly
-- [ ] Implement random direction logic
-- [ ] Record path history
+- [x] Implement `move()` for Crawler
+- [x] Implement `move()` for Hopper
+- [x] Handle board edges properly
+- [x] Implement random direction logic
+- [x] Record path history
 
 ## Stage 4 - Board Mechanics
 
