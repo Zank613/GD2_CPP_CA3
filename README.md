@@ -69,9 +69,9 @@ Optional:
 
 **Goal:** Get a working system
 - [ ] Read `bugs.txt`
-- [ ] Dynamically allocate bugs
-- [ ] Display all bugs
-- [ ] Implement "Find Bug by ID"
+- [x] Dynamically allocate bugs
+- [x] Display all bugs
+- [x] Implement "Find Bug by ID"
 - [ ] Basic menu system
 
 ## ~~Stage 3 - Movement System~~
@@ -83,38 +83,38 @@ Optional:
 - [x] Implement random direction logic
 - [x] Record path history
 
-## Stage 4 - Board Mechanics
+## ~~Stage 4 - Board Mechanics~~
 
 **Goal:** Make simulation meaningful
-- [ ] Implement Tap (move all bugs)
-- [ ] Freeze one random bug per tap
-- [ ] Track cell occupancy
-- [ ] Display all cells and their bugs
+- [x] Implement Tap (move all bugs)
+- [x] Freeze one random bug per tap
+- [x] Track cell occupancy
+- [x] Display all cells and their bugs
 
-## Stage 5 - Combat System
+## ~~Stage 5 - Combat System~~
 
 **Goal:** Bug interaction
-- [ ] Detect bugs in same cell
-- [ ] Pair bugs for fights
-- [ ] Implement 3 round fight system
-- [ ] Apply random damage (0–5)
-- [ ] Mark dead bugs
-- [ ] Track "who killed who"
+- [x] Detect bugs in same cell
+- [x] Pair bugs for fights
+- [x] Implement 3 round fight system
+- [x] Apply random damage (0–5)
+- [x] Mark dead bugs
+- [x] Track "who killed who"
 
-## Stage 6 - Simulation Loop
+## ~~Stage 6 - Simulation Loop~~
 
 **Goal:** Automation
-- [ ] Implement “Run Simulation”
-- [ ] Tap every second
-- [ ] Display live updates
-- [ ] Stop when one bug remains
+- [x] Implement “Run Simulation”
+- [x] Tap every second
+- [x] Display live updates
+- [x] Stop when one bug remains
 
-## Stage 7 - Output & History
+## ~~Stage 7 - Output & History~~
 
 **Goal:** Data persistence
-- [ ] Display life history
-- [ ] Save to output file with timestamp
-- [ ] Include paths + death info
+- [x] Display life history
+- [x] Save to output file with timestamp
+- [x] Include paths + death info
 
 ## Innovative Development
 
