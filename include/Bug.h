@@ -16,13 +16,11 @@ enum class Direction {
 };
 
 /**
- * @brief Abstract base class shared by every bug on the board.
+ * @brief Abstract base class for every bug on the board.
  *
- * This class stores the common state every bug needs:
- * id, position, direction, health, alive/dead status, and its path history.
- *
- * The class is abstract because the brief requires each bug type to implement
- * its own move() behaviour.
+ * Stores the shared state that all bug types need:
+ * id, position, direction, health, alive state, path history,
+ * and the id of the bug that ate it (if it died in combat).
  */
 class Bug {
 protected:
@@ -32,6 +30,7 @@ protected:
     int health;
     bool alive;
     std::list<std::pair<int, int>> path;
+    int eatenById;
 
 public:
     /**
@@ -124,6 +123,18 @@ public:
      * @param damage Damage amount to subtract from health.
      */
     void takeDamage(int damage);
+
+    /**
+     * @brief Gets the id of the bug that ate this bug.
+     * @return Eater id, or -1 if this bug has not been eaten.
+     */
+    int getEatenById() const;
+
+    /**
+     * @brief Records which bug ate this bug.
+     * @param eaterId id of the winning bug.
+     */
+    void setEatenById(int eaterId);
 };
 
 #endif

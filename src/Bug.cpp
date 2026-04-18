@@ -1,7 +1,7 @@
 #include "Bug.h"
 
 Bug::Bug(int id, std::pair<int, int> position, Direction direction, int health)
-    : id(id), position(position), direction(direction), health(health), alive(true) {
+    : id(id), position(position), direction(direction), health(health), alive(true), eatenById(-1) {
     path.push_back(position);
 }
 
@@ -65,4 +65,12 @@ void Bug::takeDamage(int damage) {
         health = 0;
         alive = false;
     }
+}
+
+int Bug::getEatenById() const {
+    return eatenById;
+}
+
+void Bug::setEatenById(int eaterID) {
+    eatenById = eaterID;
 }

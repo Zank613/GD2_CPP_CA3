@@ -9,6 +9,7 @@ and evolve over time on a 10x10 board.
 - Derived Bug types:
   - Crawler
   - Hopper
+  - Hunter Bug (tracks scent instead of direct detection) uses scent
 - Movement system with direction and boundary handling
 - Bug interactions
 - File input
@@ -19,7 +20,6 @@ and evolve over time on a 10x10 board.
 # Innovative Features
 
 - ANSI coloured terminal output
-- Hunter Bug (tracks scent instead of direct detection)
 - Scent system with dissipation over time
 - Terrain system with traversal effects
 - ASCII based heatmaps and graphs (simulation analytics)
