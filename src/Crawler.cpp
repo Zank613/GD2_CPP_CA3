@@ -1,6 +1,7 @@
 #include "Crawler.h"
 #include "Seeder.h"
 #include <random>
+#include "Utils.h"
 
 Crawler::Crawler(int id, std::pair<int, int> position, Direction direction, int health)
     : Bug(id, position, direction, health) {
@@ -15,26 +16,8 @@ void Crawler::move() {
         setDirection(static_cast<Direction>(dirDist(rng)));
     }
 
-    int x = position.first;
-    int y = position.second;
-
-    // Move 1 unit
-    switch (direction) {
-        case Direction::NORTH:
-            y -= 1;
-            break;
-        case Direction::EAST:
-            x += 1;
-            break;
-        case Direction::SOUTH:
-            y += 1;
-            break;
-        case Direction::WEST:
-            x -= 1;
-            break;
-    }
-
-    setPosition({x, y});
+    std::pair<int, int> newPosition = utils::nextPosition(position, direction, 1);
+    setPosition(newPosition);
 }
 
 std::string Crawler::getType() const {

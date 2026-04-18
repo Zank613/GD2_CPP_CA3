@@ -1,6 +1,7 @@
 #include "Hopper.h"
 #include "Seeder.h"
 #include <random>
+#include "Utils.h"
 
 Hopper::Hopper(int id, std::pair<int, int> position, Direction direction, int health, int hopLength)
     : Bug(id, position, direction, health), hopLength(hopLength) {
@@ -14,39 +15,10 @@ void Hopper::move() {
         setDirection(static_cast<Direction>(dirDist(rng)));
     }
 
-    int x = position.first;
-    int y = position.second;
+    std::pair<int, int> newPosition = utils::nextPosition(position, direction, hopLength);
+    newPosition = utils::clampPositionToBoard(newPosition);
 
-    switch (direction) {
-        case Direction::NORTH:
-            y -= hopLength;
-            break;
-        case Direction::EAST:
-            x += hopLength;
-            break;
-        case Direction::SOUTH:
-            y += hopLength;
-            break;
-        case Direction::WEST:
-            x -= hopLength;
-            break;
-    }
-
-    // If the full hop would go out of bounds, assign to the edges.
-    if (x < 0) {
-        x = 0;
-    }
-    if (x > 9) {
-        x = 9;
-    }
-    if (y < 0) {
-        y = 0;
-    }
-    if (y > 9) {
-        y = 9;
-    }
-
-    setPosition({x, y});
+    setPosition(newPosition);
 }
 
 std::string Hopper::getType() const {

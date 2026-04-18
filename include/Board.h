@@ -22,7 +22,6 @@
  * does not leak its internal containers outside as brief rules.
  */
 class Board {
-    static const int BOARD_SIZE = 10;
 
     std::vector<Bug*> bugs;
     std::map<std::pair<int, int>, std::vector<Bug*>> cellOccupants;

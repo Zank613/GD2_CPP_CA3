@@ -1,4 +1,5 @@
 #include "Bug.h"
+#include "Utils.h"
 
 Bug::Bug(int id, std::pair<int, int> position, Direction direction, int health)
     : id(id), position(position), direction(direction), health(health), alive(true), eatenById(-1) {
@@ -15,9 +16,9 @@ bool Bug::isWayBlocked() const {
         case Direction::NORTH:
             return y == 0;
         case Direction::EAST:
-            return x == 9;
+            return x == utils::BOARD_MAX_INDEX;
         case Direction::SOUTH:
-            return y == 9;
+            return y == utils::BOARD_MAX_INDEX;
         case Direction::WEST:
             return x == 0;
         default:
