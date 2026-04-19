@@ -71,7 +71,7 @@ std::string buildBugEndStateText(const Bug* bug);
  * Example:
  * - "Crawler" -> "C"
  * - "Hopper" -> "H"
- * - "Hunter" / "HunterBug" -> "U"
+ * - "Hunter" -> "U"
  *
  * @param bugType Bug type name.
  * @return Single-character symbol as a string.

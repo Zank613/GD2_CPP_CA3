@@ -178,7 +178,7 @@ void ConsoleRenderer::renderBoard(const std::map<std::pair<int, int>, std::vecto
             board[y][x] = applyColour(symbol, Colour::CYAN);
         } else if (type == "Hopper") {
             board[y][x] = applyColour(symbol, Colour::YELLOW);
-        } else if (type == "Hunter" || type == "HunterBug") {
+        } else if (type == "Hunter") {
             board[y][x] = applyColour(symbol, Colour::BLUE);
         } else {
             board[y][x] = symbol;

@@ -87,13 +87,6 @@ class Board {
      */
     void decayScent();
 
-    /**
-     * @brief Gets the scent value at a given cell.
-     * @param position Cell position to inspect.
-     * @return Scent value at that cell, or 0.0 if out of bounds.
-     */
-    double getScentAt(const std::pair<int, int>& position) const;
-
 public:
     /**
      * @brief Constructs a board using the current Seeder state.
@@ -197,6 +190,13 @@ public:
     * @param renderer Pointer to a renderer owned elsewhere.
     */
     void setRenderer(ConsoleRenderer* renderer);
+
+    /**
+     * @brief Gets the scent value at a given cell.
+     * @param position Cell position to inspect.
+     * @return Scent value at that cell, or 0.0 if out of bounds.
+     */
+    double getScentAt(const std::pair<int, int>& position) const;
 };
 
 #endif

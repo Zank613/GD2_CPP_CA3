@@ -18,7 +18,8 @@ add_executable(GD2_CPP_CA3 main.cpp
         src/ConsoleRenderer.cpp
         include/Utils.h
         src/Utils.cpp
-        include/Hunter.h)
+        include/Hunter.h
+        src/Hunter.cpp)
 
 target_include_directories(GD2_CPP_CA3 PRIVATE include)
 

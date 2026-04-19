@@ -15,6 +15,8 @@
 #include <sstream>
 #include <thread>
 
+#include "Hunter.h"
+
 Board::Board() : tapCount(0), renderer(nullptr) {
     initializeScentGrid();
 }
@@ -240,6 +242,8 @@ void Board::initializeFromFile(const std::string& filename) {
         } else if (bugType == 'H') {
             int hopLength = std::stoi(parts[6]);
             addBug(new Hopper(id, {x, y}, direction, health, hopLength));
+        } else if (bugType == 'U') {
+            addBug(new Hunter(id, {x, y}, direction, health, this));
         }
     }
 
