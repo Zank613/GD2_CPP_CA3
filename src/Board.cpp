@@ -16,10 +16,12 @@
 #include <thread>
 
 Board::Board() : tapCount(0), renderer(nullptr) {
+    initializeScentGrid();
 }
 
 Board::Board(unsigned int seed) : tapCount(0), renderer(nullptr) {
     Seeder::getInstance().setSeed(seed);
+    initializeScentGrid();
 }
 
 Board::~Board() {
@@ -205,6 +207,7 @@ void Board::initializeFromFile(const std::string& filename) {
     bugs.clear();
     cellOccupants.clear();
     tapCount = 0;
+    initializeScentGrid();
 
     std::string line;
 
@@ -291,10 +294,12 @@ void Board::tapBoard() {
         }
 
         bugs[i]->move();
+        depositScent(bugs[i]->getPosition(), 1.0);
     }
 
     updateCellOccupants();
     resolveFights();
+    decayScent();
 
     if (renderer != nullptr) {
         renderer->printStatus("Board after tap " + std::to_string(tapCount));
@@ -416,4 +421,46 @@ int Board::getTapCount() const {
 
 void Board::setRenderer(ConsoleRenderer* renderer) {
     this->renderer = renderer;
+}
+
+void Board::initializeScentGrid() {
+    for (int y = 0; y < utils::BOARD_SIZE; y++) {
+        for (int x = 0; x < utils::BOARD_SIZE; x++) {
+            scentGrid[y][x] = 0.0;
+        }
+    }
+}
+
+void Board::depositScent(const std::pair<int, int>& position, double amount) {
+    int x = position.first;
+    int y = position.second;
+
+    if (x < 0 || x >= utils::BOARD_SIZE || y < 0 || y >= utils::BOARD_SIZE) {
+        return;
+    }
+
+    scentGrid[y][x] += amount;
+}
+
+void Board::decayScent() {
+    for (int y = 0; y < utils::BOARD_SIZE; y++) {
+        for (int x = 0; x < utils::BOARD_SIZE; x++) {
+            scentGrid[y][x] *= 0.5;
+
+            if (scentGrid[y][x] < 0.1) {
+                scentGrid[y][x] = 0.0;
+            }
+        }
+    }
+}
+
+double Board::getScentAt(const std::pair<int, int>& position) const {
+    int x = position.first;
+    int y = position.second;
+
+    if (x < 0 || x >= utils::BOARD_SIZE || y < 0 || y >= utils::BOARD_SIZE) {
+        return 0.0;
+    }
+
+    return scentGrid[y][x];
 }

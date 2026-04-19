@@ -8,6 +8,7 @@
 
 #include "Bug.h"
 #include "ConsoleRenderer.h"
+#include "Utils.h"
 
 /**
  * @brief Owns and manages the whole bug board simulation.
@@ -28,6 +29,7 @@ class Board {
     std::map<std::pair<int, int>, std::vector<Bug*>> cellOccupants;
     int tapCount;
     ConsoleRenderer* renderer;
+    double scentGrid[utils::BOARD_SIZE][utils::BOARD_SIZE];
 
     /**
      * @brief Finds a bug internally by id.
@@ -67,6 +69,30 @@ class Board {
      * If there is an odd number, the last one is left unscathed.
      */
     void resolveFights();
+
+    /**
+    * @brief Sets all scent values on the board to 0.
+    */
+    void initializeScentGrid();
+
+    /**
+     * @brief Adds scent to a board cell.
+     * @param position Cell position where scent is deposited.
+     * @param amount Amount of scent to add.
+     */
+    void depositScent(const std::pair<int, int>& position, double amount);
+
+    /**
+     * @brief Reduces scent values across the whole board after each tap.
+     */
+    void decayScent();
+
+    /**
+     * @brief Gets the scent value at a given cell.
+     * @param position Cell position to inspect.
+     * @return Scent value at that cell, or 0.0 if out of bounds.
+     */
+    double getScentAt(const std::pair<int, int>& position) const;
 
 public:
     /**
