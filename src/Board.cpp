@@ -15,10 +15,10 @@
 #include <sstream>
 #include <thread>
 
-Board::Board() : tapCount(0) {
+Board::Board() : tapCount(0), renderer(nullptr) {
 }
 
-Board::Board(unsigned int seed) : tapCount(0) {
+Board::Board(unsigned int seed) : tapCount(0), renderer(nullptr) {
     Seeder::getInstance().setSeed(seed);
 }
 
@@ -241,11 +241,19 @@ void Board::initializeFromFile(const std::string& filename) {
     }
 
     updateCellOccupants();
+
+    if (renderer != nullptr && renderer->isDebugEnabled()) {
+        renderer->printDebug("Board initialized from file: " + filename);
+    }
 }
 
 void Board::displayAllBugs() const {
     for (Bug* bug : bugs) {
-        displayBugDetails(bug);
+        if (renderer != nullptr) {
+            renderer->printBugDetails(bug);
+        } else {
+            displayBugDetails(bug);
+        }
     }
 }
 
@@ -278,11 +286,20 @@ void Board::tapBoard() {
             continue;
         }
 
+        if (renderer != nullptr && renderer->isDebugEnabled() && frozenIndex != -1) {
+            renderer->printDebug("Frozen bug id: " + std::to_string(bugs[frozenIndex]->getId()));
+        }
+
         bugs[i]->move();
     }
 
     updateCellOccupants();
     resolveFights();
+
+    if (renderer != nullptr) {
+        renderer->printStatus("Board after tap " + std::to_string(tapCount));
+        renderer->renderBoard(cellOccupants);
+    }
 }
 
 void Board::displayLifeHistory() const {
@@ -291,11 +308,15 @@ void Board::displayLifeHistory() const {
             continue;
         }
 
-        std::cout << bug->getId() << " "
-                  << bug->getType() << " Path: "
-                  << utils::formatPath(bug->getPath()) << " "
-                  << utils::buildBugEndStateText(bug)
-                  << "\n";
+        if (renderer != nullptr) {
+            renderer->printLifeHistory(bug);
+        } else {
+            std::cout << bug->getId() << " "
+                      << bug->getType() << " Path: "
+                      << utils::formatPath(bug->getPath()) << " "
+                      << utils::buildBugEndStateText(bug)
+                      << "\n";
+        }
     }
 }
 
@@ -331,14 +352,24 @@ void Board::runSimulation() {
     while (!isSimulationOver()) {
         tapBoard();
 
-        std::cout << "Tap: " << tapCount << "\n";
+        if (renderer != nullptr) {
+            renderer->printStatus("Tap: " + std::to_string(tapCount));
+        } else {
+            std::cout << "Tap: " << tapCount << "\n";
+        }
+
         displayAllBugs();
         std::cout << "\n";
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
-    std::cout << "Simulation finished.\n";
+    if (renderer != nullptr) {
+        renderer->printStatus("Simulation finished.");
+    } else {
+        std::cout << "Simulation finished.\n";
+    }
+
     writeLifeHistoryToFile();
 }
 
@@ -381,4 +412,8 @@ bool Board::isSimulationOver() const {
 
 int Board::getTapCount() const {
     return tapCount;
+}
+
+void Board::setRenderer(ConsoleRenderer* renderer) {
+    this->renderer = renderer;
 }

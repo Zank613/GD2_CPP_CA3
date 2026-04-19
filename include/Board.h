@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "Bug.h"
+#include "ConsoleRenderer.h"
 
 /**
  * @brief Owns and manages the whole bug board simulation.
@@ -26,6 +27,7 @@ class Board {
     std::vector<Bug*> bugs;
     std::map<std::pair<int, int>, std::vector<Bug*>> cellOccupants;
     int tapCount;
+    ConsoleRenderer* renderer;
 
     /**
      * @brief Finds a bug internally by id.
@@ -163,6 +165,12 @@ public:
      * @return Number of taps performed so far.
      */
     int getTapCount() const;
+
+    /**
+    * @brief Sets the renderer used for console output.
+    * @param renderer Pointer to a renderer owned elsewhere.
+    */
+    void setRenderer(ConsoleRenderer* renderer);
 };
 
 #endif

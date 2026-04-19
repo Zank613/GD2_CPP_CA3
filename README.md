@@ -65,14 +65,14 @@ Optional:
 - [x] Create `Board` class
 - [x] Store bugs using `vector<Bug*>`
 
-## Stage 2 - File Input & Basic Features
+## ~~Stage 2 - File Input & Basic Features~~
 
 **Goal:** Get a working system
-- [ ] Read `bugs.txt`
+- [x] Read `bugs.txt`
 - [x] Dynamically allocate bugs
 - [x] Display all bugs
 - [x] Implement "Find Bug by ID"
-- [ ] Basic menu system
+- [x] Basic menu system
 
 ## ~~Stage 3 - Movement System~~
 
@@ -142,8 +142,8 @@ Optional:
 
 ## Stage 11 - Visualization
 
-- [ ] ANSI coloured output
-- [ ] Board rendering
+- [x] ANSI coloured output
+- [x] Board rendering
 - [ ] Visit heatmap
 - [ ] Fight heatmap
 - [ ] Alive bugs graph
