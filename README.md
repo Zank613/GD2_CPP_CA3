@@ -3,6 +3,39 @@
 A simulation system where different types of bugs move, interact, fight 
 and evolve over time on a 10x10 board.
 
+# Run
+
+I suggest using Terminal that supports ANSI colours for normal usage. (e.g. Windows Terminal)
+
+**Run Normally**
+```bash
+.\GD2_CPP_CA3.exe
+```
+
+**Run Normally with Debug messages**
+```bash
+.\GD2_CPP_CA3.exe --debug
+```
+
+**Run with no colour**
+```bash
+.\GD2_CPP_CA3.exe --nocolour
+```
+
+**Run with no board rendering**
+```bash
+.\GD2_CPP_CA3.exe --novisual
+```
+
+**Run Normally with a defined seed**
+```bash
+.\GD2_CPP_CA3.exe --seed N
+```
+
+**Run Faster (no board rendering and doesn't wait for 1 second)**
+```bash
+.\GD2_CPP_CA3.exe --fast
+```
 # Features
 
 - Abstract `Bug` class with polymorphism.
