@@ -17,6 +17,8 @@ struct ProgramOptions {
     bool showVisual = true;
     bool useColour = true;
     bool debugMode = false;
+
+    int delayMs = 1000;
 };
 
 /**
@@ -53,6 +55,10 @@ bool parseArguments(int argc, char* argv[], ProgramOptions& options) {
             options.useColour = false;
         } else if (arg == "--debug") {
             options.debugMode = true;
+        }else if (arg == "--fast") {
+            options.showVisual = false;
+            options.useColour = false;
+            options.delayMs = 0;
         } else {
             std::cout << "Unknown argument: " << arg << "\n";
             return false;
@@ -114,6 +120,7 @@ int main(int argc, char* argv[]) {
 
     Board board;
     board.setRenderer(&renderer);
+    board.setSimulationDelay(options.delayMs);
 
     std::cout << "Seed: " << Seeder::getInstance().getCurrentSeed() << "\n";
 

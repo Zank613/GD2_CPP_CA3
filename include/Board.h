@@ -32,6 +32,14 @@ class Board {
     double scentGrid[utils::BOARD_SIZE][utils::BOARD_SIZE];
 
     /**
+     * @brief Delay between simulation taps in milliseconds.
+     *
+     * Normal mode uses a visible delay so the simulation can be watched.
+     * Fast mode sets this to 0 so the simulation runs without waiting.
+     */
+    int simulationDelayMs;
+
+    /**
      * @brief Finds a bug internally by id.
      * @param id Bug id to search for.
      * @return Pointer to matching bug or nullptr if not found.
@@ -197,6 +205,12 @@ public:
      * @return Scent value at that cell, or 0.0 if out of bounds.
      */
     double getScentAt(const std::pair<int, int>& position) const;
+
+    /**
+     * @brief Sets the delay used between simulation taps.
+     * @param delayMs Delay in milliseconds.
+     */
+    void setSimulationDelay(int delayMs);
 };
 
 #endif

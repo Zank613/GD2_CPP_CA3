@@ -118,18 +118,18 @@ Optional:
 
 ## Innovative Development
 
-## Stage 8 - Scent System
+## ~~Stage 8 - Scent System~~
 
-- [ ] Add smell grid to Board
-- [ ] Bugs deposit scent when moving
-- [ ] Fights create stronger scent
-- [ ] Implement scent decay each turn
+- [x] Add smell grid to Board
+- [x] Bugs deposit scent when moving
+- [x] Fights create stronger scent
+- [x] Implement scent decay each turn
 
 ## Stage 9 - Hunter Bug
 
-- [ ] Create new derived bug class `Hunter`
-- [ ] Follow the strongest scent direction
-- [ ] Use tolerance (±0.5) for decision-making
+- [x] Create new derived bug class `Hunter`
+- [x] Follow the strongest scent direction
+- [x] Use tolerance (±0.5) for decision-making
 - [ ] Implement path memory
 - [ ] Backtracking when scent disappears
 

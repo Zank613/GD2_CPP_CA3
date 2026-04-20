@@ -8,8 +8,7 @@
 #include <vector>
 
 Hunter::Hunter(int id, std::pair<int, int> position, Direction direction, int health, Board* board)
-    : Bug(id, position, direction, health), board(board) {
-}
+    : Bug(id, position, direction, health), board(board), lastPosition({-1, -1}), hasLastPosition(false), scentTolerance(0.5) {}
 
 Direction Hunter::chooseScentDirection() const {
     // If Hunter has no board fall back to current direction.
@@ -17,12 +16,16 @@ Direction Hunter::chooseScentDirection() const {
         return direction;
     }
 
-    std::vector<Direction> validDirections;
-    std::vector<Direction> bestDirections;
+    struct Option {
+        Direction direction;
+        std::pair<int, int> nextPosition;
+        double scent;
+    };
 
-    double bestScent = -1;
+    std::vector<Option> forwardOptions;
+    std::vector<Option> backtrackOptions;
 
-    const Direction allDirections[] = {
+    const Direction allDirections[4] = {
         Direction::NORTH,
         Direction::EAST,
         Direction::SOUTH,
@@ -38,39 +41,55 @@ Direction Hunter::chooseScentDirection() const {
             continue;
         }
 
-        validDirections.push_back(candidateDirection);
-
         double scentValue = board->getScentAt(nextPos);
+        Option option{candidateDirection, nextPos, scentValue};
 
-        if (scentValue > bestScent) {
-            bestScent = scentValue;
-            bestDirections.clear();
-            bestDirections.push_back(candidateDirection);
-        } else if (scentValue == bestScent) {
-            bestDirections.push_back(candidateDirection);
+        if (hasLastPosition && nextPos == lastPosition) {
+            backtrackOptions.push_back(option);
+        } else {
+            forwardOptions.push_back(option);
         }
     }
 
-    // No valid moves should not really happen on a 10x10 board
-    // but return current direction as fallback.
-    if (validDirections.empty()) {
+    // Prefer not to immediately reverse direction unless there is no other move.
+    const std::vector<Option>& optionsToUse =
+        !forwardOptions.empty() ? forwardOptions : backtrackOptions;
+
+    if (optionsToUse.empty()) {
         return direction;
     }
 
-    std::mt19937& rng = Seeder::getInstance().getRNG();
-
-    // If no scent is nearby Hunter falls back to random exploration.
-    if (bestScent <= 0.0) {
-        std::uniform_int_distribution<int> dist(0, static_cast<int>(validDirections.size()) - 1);
-        return validDirections[dist(rng)];
+    double bestScent = -1.0;
+    for (const Option& option : optionsToUse) {
+        if (option.scent > bestScent) {
+            bestScent = option.scent;
+        }
     }
 
-    // If multiple directions have the same best scent pick one randomly.
-    std::uniform_int_distribution<int> dist(0, static_cast<int>(bestDirections.size()) - 1);
-    return bestDirections[dist(rng)];
+    std::vector<Direction> candidateDirections;
+
+    // If there is no scent nearby do a random valid move (still avoiding immediate reversal if possible).
+    if (bestScent <= 0.0) {
+        for (const Option& option : optionsToUse) {
+            candidateDirections.push_back(option.direction);
+        }
+    } else {
+        for (const Option& option : optionsToUse) {
+            if (option.scent >= bestScent - scentTolerance) {
+                candidateDirections.push_back(option.direction);
+            }
+        }
+    }
+
+    std::mt19937& rng = Seeder::getInstance().getRNG();
+    std::uniform_int_distribution<int> dist(0, static_cast<int>(candidateDirections.size()) - 1);
+
+    return candidateDirections[dist(rng)];
 }
 
 void Hunter::move() {
+    std::pair<int, int> oldPosition = position;
+
     Direction chosenDirection = chooseScentDirection();
     setDirection(chosenDirection);
 
@@ -78,6 +97,9 @@ void Hunter::move() {
     newPosition = utils::clampPositionToBoard(newPosition);
 
     setPosition(newPosition);
+
+    lastPosition = oldPosition;
+    hasLastPosition = true;
 }
 
 std::string Hunter::getType() const {

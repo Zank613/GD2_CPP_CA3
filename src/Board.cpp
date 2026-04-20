@@ -17,11 +17,11 @@
 
 #include "Hunter.h"
 
-Board::Board() : tapCount(0), renderer(nullptr) {
+Board::Board() : tapCount(0), renderer(nullptr), simulationDelayMs(1000) {
     initializeScentGrid();
 }
 
-Board::Board(unsigned int seed) : tapCount(0), renderer(nullptr) {
+Board::Board(unsigned int seed) : tapCount(0), renderer(nullptr), simulationDelayMs(1000) {
     Seeder::getInstance().setSeed(seed);
     initializeScentGrid();
 }
@@ -133,6 +133,9 @@ void Board::resolveFights() {
         if (fighters.size() < 2) {
             continue;
         }
+
+        // Make battles smell strongly of scent.
+        depositScent(entry.first, 5.0);
 
         // Deterministic pairing strategy: sort by id, then pair in order.
         std::sort(
@@ -298,7 +301,10 @@ void Board::tapBoard() {
         }
 
         bugs[i]->move();
-        depositScent(bugs[i]->getPosition(), 1.0);
+        // Hunter type of bug, doesn't leave any scent.
+        if (bugs[i]->getType() != "Hunter") {
+            depositScent(bugs[i]->getPosition(), 1.0);
+        }
     }
 
     updateCellOccupants();
@@ -370,7 +376,9 @@ void Board::runSimulation() {
         displayAllBugs();
         std::cout << "\n";
 
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        if (simulationDelayMs > 0) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(simulationDelayMs));
+        }
     }
 
     if (renderer != nullptr) {
@@ -467,4 +475,8 @@ double Board::getScentAt(const std::pair<int, int>& position) const {
     }
 
     return scentGrid[y][x];
+}
+
+void Board::setSimulationDelay(int delayMs) {
+    simulationDelayMs = delayMs;
 }

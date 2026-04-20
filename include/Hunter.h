@@ -25,6 +25,10 @@ class Hunter : public Bug {
      */
     Board* board;
 
+    std::pair<int, int> lastPosition;
+    bool hasLastPosition;
+    double scentTolerance;
+
     /**
      * @brief Chooses the best direction based on nearby scent.
      * @return Direction chosen from local scent values.
