@@ -158,13 +158,13 @@ Optional:
 - [x] Fights create stronger scent
 - [x] Implement scent decay each turn
 
-## Stage 9 - Hunter Bug
+## ~~Stage 9 - Hunter Bug~~
 
 - [x] Create new derived bug class `Hunter`
 - [x] Follow the strongest scent direction
 - [x] Use tolerance (±0.5) for decision-making
-- [ ] Implement path memory
-- [ ] Backtracking when scent disappears
+- [x] Implement path memory
+- [x] Backtracking when scent disappears
 
 ## Stage 10 - Terrain System
 
