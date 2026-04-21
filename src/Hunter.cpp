@@ -9,7 +9,7 @@
 
 Hunter::Hunter(int id, std::pair<int, int> position, Direction direction, int health, Board* board)
     : Bug(id, position, direction, health), board(board), lastPosition({-1, -1}), hasLastPosition(false),
-      scentTolerance(0.5), scentThreshold(0.3), maxTrailSize(24), maxDecisionPoints(8) {}
+      scentTolerance(0.2), scentThreshold(0.4), maxTrailSize(24), maxDecisionPoints(8) {}
 
 std::vector<Hunter::Option> Hunter::collectOptions(bool avoidImmediateReverse) const {
     std::vector<Option> options;
