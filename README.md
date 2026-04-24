@@ -36,6 +36,11 @@ I suggest using Terminal that supports ANSI colours for normal usage. (e.g. Wind
 ```bash
 .\GD2_CPP_CA3.exe --fast
 ```
+
+**These commands can be combined as well.**
+```bash
+.\GD2_CPP_CA3.exe --seed N --fast --debug
+```
 # Features
 
 - Abstract `Bug` class with polymorphism.
@@ -173,13 +178,14 @@ Optional:
 - [x] Modify movement based on terrain
 - [x] Integrate with all bug types
 
-## Stage 11 - Visualization
+## ~~Stage 11 - Visualization~~
 
 - [x] ANSI coloured output
 - [x] Board rendering
-- [ ] Visit heatmap
-- [ ] Fight heatmap
-- [ ] Alive bugs graph
+- [x] Visit heatmap
+- [x] Fight heatmap
+
+~~- [ ] Alive bugs graph~~ _Removed due to being unnecessary._
 
 ## Stage 12 - Optional Weather
 
