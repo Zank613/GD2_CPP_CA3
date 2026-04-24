@@ -166,12 +166,12 @@ Optional:
 - [x] Implement path memory
 - [x] Backtracking when scent disappears
 
-## Stage 10 - Terrain System
+## ~~Stage 10 - Terrain System~~
 
-- [ ] Add terrain grid
-- [ ] Define terrain types (Mud, Rock, Food)
-- [ ] Modify movement based on terrain
-- [ ] Integrate with all bug types
+- [x] Add terrain grid
+- [x] Define terrain types (Mud, Rock, Food)
+- [x] Modify movement based on terrain
+- [x] Integrate with all bug types
 
 ## Stage 11 - Visualization
 
