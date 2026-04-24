@@ -188,6 +188,16 @@ public:
      * @return Single-character terrain symbol as a string.
      */
     std::string terrainSymbol(TerrainType terrain) const;
+
+    /**
+     * @brief Prints a 10x10 numeric heatmap.
+     *
+     * Used for analytics views such as visit frequency and fight hotspots.
+     *
+     * @param title Title shown above the heatmap.
+     * @param heatmap 10x10 heatmap grid to print.
+     */
+    void printHeatmap(const std::string& title, const int heatmap[utils::BOARD_SIZE][utils::BOARD_SIZE]) const;
 };
 
 #endif

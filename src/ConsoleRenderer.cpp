@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 
 ConsoleRenderer::ConsoleRenderer(bool useColour, bool showVisual, bool debugMode)
     : useColour(useColour), showVisual(showVisual), debugMode(debugMode) {
@@ -273,4 +274,45 @@ void ConsoleRenderer::printDebug(const std::string& message) const {
 
 void ConsoleRenderer::printStatus(const std::string& message) const {
     std::cout << applyColour(message, Colour::BOLD) << "\n";
+}
+
+void ConsoleRenderer::printHeatmap(const std::string& title, const int heatmap[utils::BOARD_SIZE][utils::BOARD_SIZE]) const {
+    if (!showVisual) {
+        return;
+    }
+
+    std::cout << "\n";
+    std::cout << applyColour(title, Colour::BOLD) << "\n";
+    std::cout << applyColour("    0  1  2  3  4  5  6  7  8  9", Colour::BOLD) << "\n";
+
+    for (int y = 0; y < utils::BOARD_SIZE; y++) {
+        std::cout << applyColour(std::to_string(y) + " ", Colour::BOLD);
+
+        for (int x = 0; x < utils::BOARD_SIZE; x++) {
+            int value = heatmap[y][x];
+
+            std::string cellText;
+            if (value == 0) {
+                cellText = " .";
+            } else if (value < 10) {
+                cellText = " " + std::to_string(value);
+            } else {
+                cellText = std::to_string(value);
+            }
+
+            if (value == 0) {
+                std::cout << " " << cellText;
+            } else if (value < 5) {
+                std::cout << " " << applyColour(cellText, Colour::YELLOW);
+            } else if (value < 10) {
+                std::cout << " " << applyColour(cellText, Colour::ORANGE);
+            } else {
+                std::cout << " " << applyColour(cellText, Colour::RED);
+            }
+        }
+
+        std::cout << "\n";
+    }
+
+    std::cout << "\n";
 }

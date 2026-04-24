@@ -15,18 +15,42 @@
 #include <random>
 #include <sstream>
 #include <thread>
+#include <ostream>
 
 #include "Hunter.h"
+
+/**
+ * @brief Writes a 10x10 heatmap to an output stream.
+ * @param output Stream to write to.
+ * @param title Heatmap title.
+ * @param heatmap Heatmap grid.
+ */
+void writeHeatmapToStream(std::ostream& output, const std::string& title, const int heatmap[utils::BOARD_SIZE][utils::BOARD_SIZE]) {
+    output << "\n" << title << "\n";
+    output << "    0  1  2  3  4  5  6  7  8  9\n";
+
+    for (int y = 0; y < utils::BOARD_SIZE; y++) {
+        output << y << " ";
+
+        for (int x = 0; x < utils::BOARD_SIZE; x++) {
+            output << std::setw(3) << heatmap[y][x];
+        }
+
+        output << "\n";
+    }
+}
 
 Board::Board() : tapCount(0), renderer(nullptr), simulationDelayMs(1000) {
     initializeScentGrid();
     initializeTerrainGrid();
+    initializeFightHeatmap();
 }
 
 Board::Board(unsigned int seed) : tapCount(0), renderer(nullptr), simulationDelayMs(1000) {
     Seeder::getInstance().setSeed(seed);
     initializeScentGrid();
     initializeTerrainGrid();
+    initializeFightHeatmap();
 }
 
 Board::~Board() {
@@ -153,6 +177,8 @@ void Board::resolveFights() {
             Bug* first = fighters[i];
             Bug* second = fighters[i + 1];
 
+            recordFightAt(entry.first);
+
             // Fight lasts up to 3 rounds.
             for (int round = 0; round < 3; round++) {
                 if (!first->isAlive() || !second->isAlive()) {
@@ -218,6 +244,7 @@ void Board::initializeFromFile(const std::string& filename) {
 
     initializeScentGrid();
     initializeTerrainGrid();
+    initializeFightHeatmap();
 
     std::string line;
 
@@ -399,7 +426,7 @@ void Board::runSimulation() {
     } else {
         std::cout << "Simulation finished.\n";
     }
-
+    displayHeatmaps();
     writeLifeHistoryToFile();
 }
 
@@ -434,6 +461,12 @@ void Board::writeLifeHistoryToFile() const {
        << utils::buildBugEndStateText(bug)
        << "\n";
     }
+
+    int visitHeatmap[utils::BOARD_SIZE][utils::BOARD_SIZE];
+    buildVisitHeatmap(visitHeatmap);
+
+    writeHeatmapToStream(output, "Visit Heatmap", visitHeatmap);
+    writeHeatmapToStream(output, "Fight Heatmap", fightHeatmap);
 }
 
 bool Board::isSimulationOver() const {
@@ -645,5 +678,59 @@ void Board::applyTerrainEffect(Bug* bug) {
         case TerrainType::NORMAL:
         default:
             break;
+    }
+}
+
+void Board::initializeFightHeatmap() {
+    for (int y = 0; y < utils::BOARD_SIZE; y++) {
+        for (int x = 0; x < utils::BOARD_SIZE; x++) {
+            fightHeatmap[y][x] = 0;
+        }
+    }
+}
+
+void Board::recordFightAt(const std::pair<int, int>& position) {
+    int x = position.first;
+    int y = position.second;
+
+    if (x < 0 || x >= utils::BOARD_SIZE || y < 0 || y >= utils::BOARD_SIZE) {
+        return;
+    }
+
+    fightHeatmap[y][x]++;
+}
+
+void Board::buildVisitHeatmap(int visitHeatmap[utils::BOARD_SIZE][utils::BOARD_SIZE]) const {
+    for (int y = 0; y < utils::BOARD_SIZE; y++) {
+        for (int x = 0; x < utils::BOARD_SIZE; x++) {
+            visitHeatmap[y][x] = 0;
+        }
+    }
+
+    for (Bug* bug : bugs) {
+        if (bug == nullptr) {
+            continue;
+        }
+
+        const std::list<std::pair<int, int>>& path = bug->getPath();
+
+        for (const std::pair<int, int>& position : path) {
+            int x = position.first;
+            int y = position.second;
+
+            if (x >= 0 && x < utils::BOARD_SIZE && y >= 0 && y < utils::BOARD_SIZE) {
+                visitHeatmap[y][x]++;
+            }
+        }
+    }
+}
+
+void Board::displayHeatmaps() const {
+    int visitHeatmap[utils::BOARD_SIZE][utils::BOARD_SIZE];
+    buildVisitHeatmap(visitHeatmap);
+
+    if (renderer != nullptr) {
+        renderer->printHeatmap("Visit Heatmap", visitHeatmap);
+        renderer->printHeatmap("Fight Heatmap", fightHeatmap);
     }
 }

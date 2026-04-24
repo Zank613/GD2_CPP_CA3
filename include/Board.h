@@ -33,6 +33,14 @@ class Board {
     double scentGrid[utils::BOARD_SIZE][utils::BOARD_SIZE];
 
     /**
+     * @brief Tracks how many fights happened in each board cell.
+     *
+     * This is updated during fight resolution and displayed after the full
+     * simulation finishes.
+     */
+    int fightHeatmap[utils::BOARD_SIZE][utils::BOARD_SIZE];
+
+    /**
      * @brief Terrain layout for the 10x10 board.
      */
     TerrainType terrainGrid[utils::BOARD_SIZE][utils::BOARD_SIZE];
@@ -153,6 +161,26 @@ class Board {
      * @param bug Bug that just moved onto a terrain cell.
      */
     void applyTerrainEffect(Bug* bug);
+
+    /**
+     * @brief Resets all fight heatmap values to 0.
+     */
+    void initializeFightHeatmap();
+
+    /**
+     * @brief Records one fight at a board position.
+     * @param position Cell where the fight happened.
+     */
+    void recordFightAt(const std::pair<int, int>& position);
+
+    /**
+     * @brief Builds a visit heatmap from all bug path histories.
+     *
+     * This is generated at the end instead of stored during every tap.
+     *
+     * @param visitHeatmap Output 10x10 visit heatmap.
+     */
+    void buildVisitHeatmap(int visitHeatmap[utils::BOARD_SIZE][utils::BOARD_SIZE]) const;
 
 public:
     /**
@@ -298,6 +326,11 @@ public:
      * @return true if the position is inside the board and not ROCK.
      */
     bool isCellTraversable(const std::pair<int, int>& position) const;
+
+    /**
+     * @brief Displays visit and fight heatmaps after the simulation is complete.
+     */
+    void displayHeatmaps() const;
 };
 
 #endif
