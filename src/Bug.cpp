@@ -2,7 +2,9 @@
 #include "Utils.h"
 
 Bug::Bug(int id, std::pair<int, int> position, Direction direction, int health)
-    : id(id), position(position), direction(direction), health(health), alive(true), eatenById(-1) {
+    : id(id), position(position), direction(direction), health(health), alive(true), eatenById(-1),
+        board(nullptr), stuckTurns(0)
+{
     path.push_back(position);
 }
 
@@ -74,4 +76,46 @@ int Bug::getEatenById() const {
 
 void Bug::setEatenById(int eaterID) {
     eatenById = eaterID;
+}
+
+void Bug::setBoard(Board* board) {
+    this->board = board;
+}
+
+Board* Bug::getBoard() const {
+    return board;
+}
+
+bool Bug::isStuck() const {
+    return stuckTurns > 0;
+}
+
+int Bug::getStuckTurns() const {
+    return stuckTurns;
+}
+
+void Bug::setStuckTurns(int turns) {
+    if (turns < 0) {
+        stuckTurns = 0;
+    } else {
+        stuckTurns = turns;
+    }
+}
+
+void Bug::decrementStuckTurns() {
+    if (stuckTurns > 0) {
+        stuckTurns--;
+    }
+}
+
+void Bug::heal(int amount) {
+    if (amount <= 0) {
+        return;
+    }
+
+    health += amount;
+
+    if (health > 20) {
+        health = 20;
+    }
 }

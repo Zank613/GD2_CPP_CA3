@@ -7,6 +7,8 @@
 #include <vector>
 
 #include "Bug.h"
+#include "Terrain.h"
+#include "Utils.h"
 
 /**
  * @brief Raw ANSI escape sequences used by the console renderer.
@@ -15,14 +17,27 @@
  * The renderer can decide whether to apply them or ignore them when
  * colour output is disabled.
  */
-#define ANSI_RESET   "\033[0m"
-#define ANSI_RED     "\033[31m"
-#define ANSI_GREEN   "\033[32m"
-#define ANSI_YELLOW  "\033[33m"
-#define ANSI_BLUE    "\033[34m"
-#define ANSI_MAGENTA "\033[35m"
-#define ANSI_CYAN    "\033[36m"
-#define ANSI_BOLD    "\033[1m"
+#define ANSI_RESET          "\033[0m"
+#define ANSI_RED            "\033[31m"
+#define ANSI_GREEN          "\033[32m"
+#define ANSI_YELLOW         "\033[33m"
+#define ANSI_BLUE           "\033[34m"
+#define ANSI_MAGENTA        "\033[35m"
+#define ANSI_CYAN           "\033[36m"
+#define ANSI_BOLD           "\033[1m"
+#define ANSI_GREY           "\033[90m"
+#define ANSI_WHITE          "\033[37m"
+#define ANSI_ORANGE         "\033[38;5;208m"
+#define ANSI_BROWN          "\033[38;5;94m"
+#define ANSI_DARK_GREEN     "\033[38;5;22m"
+
+#define ANSI_BRIGHT_RED     "\033[91m"
+#define ANSI_BRIGHT_GREEN   "\033[92m"
+#define ANSI_BRIGHT_YELLOW  "\033[93m"
+#define ANSI_BRIGHT_BLUE    "\033[94m"
+#define ANSI_BRIGHT_MAGENTA "\033[95m"
+#define ANSI_BRIGHT_CYAN    "\033[96m"
+#define ANSI_BRIGHT_WHITE   "\033[97m"
 
 /**
  * @brief Logical colour names used by the renderer.
@@ -38,6 +53,21 @@ enum class Colour {
     BLUE,
     MAGENTA,
     CYAN,
+    GREY,
+    WHITE,
+
+    BRIGHT_RED,
+    BRIGHT_GREEN,
+    BRIGHT_YELLOW,
+    BRIGHT_BLUE,
+    BRIGHT_MAGENTA,
+    BRIGHT_CYAN,
+    BRIGHT_WHITE,
+
+    ORANGE,
+    BROWN,
+    DARK_GREEN,
+
     BOLD
 };
 
@@ -133,10 +163,12 @@ public:
     void printLifeHistory(const Bug* bug) const;
 
     /**
-     * @brief Renders a 10x10 board view using the current alive bug positions.
+     * @brief Renders a 10x10 board view using alive bug positions and terrain.
      * @param cellOccupants Mapping from board cells to bugs currently in those cells.
+     * @param terrainGrid Terrain layout of the board.
      */
-    void renderBoard(const std::map<std::pair<int, int>, std::vector<Bug*>>& cellOccupants) const;
+    void renderBoard( const std::map<std::pair<int, int>, std::vector<Bug*>>& cellOccupants,
+        const TerrainType terrainGrid[utils::BOARD_SIZE][utils::BOARD_SIZE]) const;
 
     /**
      * @brief Prints a formatted debug message if debug mode is enabled.
@@ -149,6 +181,13 @@ public:
      * @param message Text to print.
      */
     void printStatus(const std::string& message) const;
+
+    /**
+     * @brief Gets the symbol used to render a terrain type.
+     * @param terrain Terrain type to convert.
+     * @return Single-character terrain symbol as a string.
+     */
+    std::string terrainSymbol(TerrainType terrain) const;
 };
 
 #endif

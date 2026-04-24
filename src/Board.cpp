@@ -4,6 +4,7 @@
 #include "Hopper.h"
 #include "Seeder.h"
 #include "Utils.h"
+#include "Terrain.h"
 
 #include <algorithm>
 #include <chrono>
@@ -19,11 +20,13 @@
 
 Board::Board() : tapCount(0), renderer(nullptr), simulationDelayMs(1000) {
     initializeScentGrid();
+    initializeTerrainGrid();
 }
 
 Board::Board(unsigned int seed) : tapCount(0), renderer(nullptr), simulationDelayMs(1000) {
     Seeder::getInstance().setSeed(seed);
     initializeScentGrid();
+    initializeTerrainGrid();
 }
 
 Board::~Board() {
@@ -212,7 +215,9 @@ void Board::initializeFromFile(const std::string& filename) {
     bugs.clear();
     cellOccupants.clear();
     tapCount = 0;
+
     initializeScentGrid();
+    initializeTerrainGrid();
 
     std::string line;
 
@@ -240,16 +245,23 @@ void Board::initializeFromFile(const std::string& filename) {
         Direction direction = static_cast<Direction>(std::stoi(parts[4]));
         int health = std::stoi(parts[5]);
 
+        Bug* bug = nullptr;
+
         if (bugType == 'C') {
-            addBug(new Crawler(id, {x, y}, direction, health));
+            bug = new Crawler(id, {x, y}, direction, health);
         } else if (bugType == 'H') {
             int hopLength = std::stoi(parts[6]);
-            addBug(new Hopper(id, {x, y}, direction, health, hopLength));
+            bug = new Hopper(id, {x, y}, direction, health, hopLength);
         } else if (bugType == 'U') {
-            addBug(new Hunter(id, {x, y}, direction, health, this));
+            bug = new Hunter(id, {x, y}, direction, health, this);
+        }
+
+        if (bug != nullptr) {
+            bug->setBoard(this);
+            addBug(bug);
         }
     }
-
+    generateTerrain();
     updateCellOccupants();
 
     if (renderer != nullptr && renderer->isDebugEnabled()) {
@@ -301,6 +313,7 @@ void Board::tapBoard() {
         }
 
         bugs[i]->move();
+        applyTerrainEffect(bugs[i]);
         // Hunter type of bug, doesn't leave any scent.
         if (bugs[i]->getType() != "Hunter") {
             depositScent(bugs[i]->getPosition(), 1.0);
@@ -313,7 +326,7 @@ void Board::tapBoard() {
 
     if (renderer != nullptr) {
         renderer->printStatus("Board after tap " + std::to_string(tapCount));
-        renderer->renderBoard(cellOccupants);
+        renderer->renderBoard(cellOccupants, terrainGrid);
     }
 }
 
@@ -479,4 +492,158 @@ double Board::getScentAt(const std::pair<int, int>& position) const {
 
 void Board::setSimulationDelay(int delayMs) {
     simulationDelayMs = delayMs;
+}
+
+void Board::initializeTerrainGrid() {
+    for (int y = 0; y < utils::BOARD_SIZE; y++) {
+        for (int x = 0; x < utils::BOARD_SIZE; x++) {
+            terrainGrid[y][x] = TerrainType::NORMAL;
+        }
+    }
+}
+
+bool Board::isWithinBounds(const std::pair<int, int>& position) const {
+    return position.first >= 0 && position.first < utils::BOARD_SIZE &&
+           position.second >= 0 && position.second < utils::BOARD_SIZE;
+}
+
+TerrainType Board::getTerrainAt(const std::pair<int, int>& position) const {
+    if (!isWithinBounds(position)) {
+        return TerrainType::ROCK;
+    }
+
+    return terrainGrid[position.second][position.first];
+}
+
+void Board::setTerrainAt(const std::pair<int, int>& position, TerrainType terrain) {
+    if (!isWithinBounds(position)) {
+        return;
+    }
+
+    terrainGrid[position.second][position.first] = terrain;
+}
+
+bool Board::isCellTraversable(const std::pair<int, int>& position) const {
+    return isWithinBounds(position) && getTerrainAt(position) != TerrainType::ROCK;
+}
+
+bool Board::isBugAtPosition(const std::pair<int, int>& position) const {
+    for (Bug* bug : bugs) {
+        if (bug != nullptr && bug->isAlive() && bug->getPosition() == position) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+int Board::countNeighbourTerrain(const std::pair<int, int>& position, TerrainType terrain) const {
+    const Direction directions[4] = {
+        Direction::NORTH,
+        Direction::EAST,
+        Direction::SOUTH,
+        Direction::WEST
+    };
+
+    int count = 0;
+
+    for (Direction direction : directions) {
+        std::pair<int, int> neighbour = utils::nextPosition(position, direction, 1);
+
+        if (isWithinBounds(neighbour) && getTerrainAt(neighbour) == terrain) {
+            count++;
+        }
+    }
+
+    return count;
+}
+
+bool Board::canPlaceTerrainAt(const std::pair<int, int>& position, TerrainType terrain) const {
+    if (!isWithinBounds(position)) {
+        return false;
+    }
+
+    if (isBugAtPosition(position)) {
+        return false;
+    }
+
+    if (getTerrainAt(position) != TerrainType::NORMAL) {
+        return false;
+    }
+
+    // Keep rocks useful but avoid making big walls that trap the board too much.
+    if (terrain == TerrainType::ROCK && countNeighbourTerrain(position, TerrainType::ROCK) >= 1) {
+        return false;
+    }
+
+    // Keep food spread out so it is not all in one cluster.
+    if (terrain == TerrainType::FOOD && countNeighbourTerrain(position, TerrainType::FOOD) >= 1) {
+        return false;
+    }
+
+    return true;
+}
+
+bool Board::placeRandomTerrain(TerrainType terrain) {
+    std::mt19937& rng = Seeder::getInstance().getRNG();
+    std::uniform_int_distribution<int> coordDist(0, utils::BOARD_MAX_INDEX);
+
+    const int maxAttempts = 100;
+
+    for (int attempt = 0; attempt < maxAttempts; attempt++) {
+        std::pair<int, int> position = {coordDist(rng), coordDist(rng)};
+
+        if (canPlaceTerrainAt(position, terrain)) {
+            setTerrainAt(position, terrain);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void Board::placeTerrainTiles(TerrainType terrain, int amount) {
+    int placed = 0;
+    int attempts = 0;
+    const int maxAttempts = amount * 50;
+
+    while (placed < amount && attempts < maxAttempts) {
+        if (placeRandomTerrain(terrain)) {
+            placed++;
+        }
+
+        attempts++;
+    }
+}
+
+void Board::generateTerrain() {
+    initializeTerrainGrid();
+
+    placeTerrainTiles(TerrainType::MUD, 8);
+    placeTerrainTiles(TerrainType::ROCK, 3);
+    placeTerrainTiles(TerrainType::FOOD, 4);
+}
+
+void Board::applyTerrainEffect(Bug* bug) {
+    if (bug == nullptr || !bug->isAlive()) {
+        return;
+    }
+
+    TerrainType terrain = getTerrainAt(bug->getPosition());
+
+    switch (terrain) {
+        case TerrainType::MUD:
+            bug->setStuckTurns(1);
+            break;
+
+        case TerrainType::FOOD:
+            bug->heal(2);
+            setTerrainAt(bug->getPosition(), TerrainType::NORMAL);
+            break;
+
+        case TerrainType::ROCK:
+        case TerrainType::NORMAL:
+        default:
+            break;
+    }
 }

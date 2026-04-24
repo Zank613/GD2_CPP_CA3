@@ -9,6 +9,7 @@
 #include "Bug.h"
 #include "ConsoleRenderer.h"
 #include "Utils.h"
+#include "Terrain.h"
 
 /**
  * @brief Owns and manages the whole bug board simulation.
@@ -30,6 +31,11 @@ class Board {
     int tapCount;
     ConsoleRenderer* renderer;
     double scentGrid[utils::BOARD_SIZE][utils::BOARD_SIZE];
+
+    /**
+     * @brief Terrain layout for the 10x10 board.
+     */
+    TerrainType terrainGrid[utils::BOARD_SIZE][utils::BOARD_SIZE];
 
     /**
      * @brief Delay between simulation taps in milliseconds.
@@ -94,6 +100,59 @@ class Board {
      * @brief Reduces scent values across the whole board after each tap.
      */
     void decayScent();
+
+    /**
+     * @brief Sets every terrain cell to NORMAL.
+     */
+    void initializeTerrainGrid();
+
+    /**
+     * @brief Procedurally generates terrain using the shared seeded RNG.
+     */
+    void generateTerrain();
+
+    /**
+     * @brief Checks whether any alive bug is currently at a position.
+     * @param position Position to inspect.
+     * @return true if an alive bug is on that cell.
+     */
+    bool isBugAtPosition(const std::pair<int, int>& position) const;
+
+    /**
+     * @brief Counts neighbouring cells that contain a specific terrain type.
+     * @param position Position whose neighbours are checked.
+     * @param terrain Terrain type to count.
+     * @return Number of direct neighbours with that terrain type.
+     */
+    int countNeighbourTerrain(const std::pair<int, int>& position, TerrainType terrain) const;
+
+    /**
+     * @brief Checks whether a terrain tile can be placed at a position.
+     * @param position Position to test.
+     * @param terrain Terrain type being placed.
+     * @return true if the terrain can be placed there.
+     */
+    bool canPlaceTerrainAt(const std::pair<int, int>& position, TerrainType terrain) const;
+
+    /**
+     * @brief Attempts to place one terrain tile at a random valid position.
+     * @param terrain Terrain type to place.
+     * @return true if placement succeeded.
+     */
+    bool placeRandomTerrain(TerrainType terrain);
+
+    /**
+     * @brief Places several terrain tiles of a given type.
+     * @param terrain Terrain type to place.
+     * @param amount Number of tiles to place.
+     */
+    void placeTerrainTiles(TerrainType terrain, int amount);
+
+    /**
+     * @brief Applies the terrain effect of the bug's current cell.
+     * @param bug Bug that just moved onto a terrain cell.
+     */
+    void applyTerrainEffect(Bug* bug);
 
 public:
     /**
@@ -211,6 +270,34 @@ public:
      * @param delayMs Delay in milliseconds.
      */
     void setSimulationDelay(int delayMs);
+
+    /**
+     * @brief Checks whether a position is inside the board.
+     * @param position Position to test.
+     * @return true if the position is inside the board.
+     */
+    bool isWithinBounds(const std::pair<int, int>& position) const;
+
+    /**
+     * @brief Gets the terrain type at a position.
+     * @param position Position to inspect.
+     * @return Terrain type at the position.
+     */
+    TerrainType getTerrainAt(const std::pair<int, int>& position) const;
+
+    /**
+     * @brief Sets the terrain type at a position.
+     * @param position Position to update.
+     * @param terrain Terrain type to place.
+     */
+    void setTerrainAt(const std::pair<int, int>& position, TerrainType terrain);
+
+    /**
+     * @brief Checks whether a bug can enter a position.
+     * @param position Position to test.
+     * @return true if the position is inside the board and not ROCK.
+     */
+    bool isCellTraversable(const std::pair<int, int>& position) const;
 };
 
 #endif

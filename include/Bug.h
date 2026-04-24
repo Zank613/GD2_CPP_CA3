@@ -15,6 +15,8 @@ enum class Direction {
     WEST = 4
 };
 
+class Board;
+
 /**
  * @brief Abstract base class for every bug on the board.
  *
@@ -31,6 +33,20 @@ protected:
     bool alive;
     std::list<std::pair<int, int>> path;
     int eatenById;
+
+    /**
+     * @brief Non-owning pointer to the board.
+     *
+     * This lets all bug types query shared board systems such as terrain.
+     */
+    Board* board;
+
+    /**
+     * @brief Number of future movement turns this bug must skip.
+     *
+     * This is used by terrain effects such as Mud.
+     */
+    int stuckTurns;
 
 public:
     /**
@@ -135,6 +151,50 @@ public:
      * @param eaterId id of the winning bug.
      */
     void setEatenById(int eaterId);
+
+    /**
+     * @brief Sets the board pointer used by this bug.
+     * @param board Non-owning pointer to the board.
+     */
+    void setBoard(Board* board);
+
+    /**
+     * @brief Gets the board pointer used by this bug.
+     * @return Current board pointer.
+     */
+    Board* getBoard() const;
+
+    /**
+     * @brief Checks whether the bug must skip movement.
+     * @return true if stuckTurns is greater than 0.
+     */
+    bool isStuck() const;
+
+    /**
+     * @brief Gets the remaining stuck turns.
+     * @return Number of movement turns still to skip.
+     */
+    int getStuckTurns() const;
+
+    /**
+     * @brief Sets how many movement turns this bug must skip.
+     * @param turns Number of turns to skip.
+     */
+    void setStuckTurns(int turns);
+
+    /**
+     * @brief Decreases stuckTurns by one if the bug is stuck.
+     */
+    void decrementStuckTurns();
+
+    /**
+     * @brief Restores health to the bug.
+     *
+     * Health is capped at 20.
+     *
+     * @param amount Amount of health to restore.
+     */
+    void heal(int amount);
 };
 
 #endif

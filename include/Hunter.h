@@ -37,15 +37,6 @@ class Hunter : public Bug {
     };
 
     /**
-     * @brief Non-owning pointer to the board.
-     *
-     * Hunter needs access to the board so it can read scent values.
-     * The Board still owns itself and owns all bugs. Hunter only borrows
-     * this pointer to inspect the environment.
-     */
-    Board* board;
-
-    /**
      * @brief Previous position, used to reduce immediate backtracking.
      */
     std::pair<int, int> lastPosition;

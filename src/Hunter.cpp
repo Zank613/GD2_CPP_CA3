@@ -8,8 +8,10 @@
 #include <vector>
 
 Hunter::Hunter(int id, std::pair<int, int> position, Direction direction, int health, Board* board)
-    : Bug(id, position, direction, health), board(board), lastPosition({-1, -1}), hasLastPosition(false),
-      scentTolerance(0.2), scentThreshold(0.4), maxTrailSize(24), maxDecisionPoints(8) {}
+    : Bug(id, position, direction, health), lastPosition({-1, -1}), hasLastPosition(false),
+      scentTolerance(0.2), scentThreshold(0.4), maxTrailSize(24), maxDecisionPoints(8) {
+    this->board = board;
+}
 
 std::vector<Hunter::Option> Hunter::collectOptions(bool avoidImmediateReverse) const {
     std::vector<Option> options;
@@ -26,6 +28,10 @@ std::vector<Hunter::Option> Hunter::collectOptions(bool avoidImmediateReverse) c
 
         if (nextPos.first < 0 || nextPos.first >= utils::BOARD_SIZE ||
             nextPos.second < 0 || nextPos.second >= utils::BOARD_SIZE) {
+            continue;
+        }
+
+        if (board != nullptr && !board->isCellTraversable(nextPos)) {
             continue;
         }
 

@@ -19,7 +19,9 @@ add_executable(GD2_CPP_CA3 main.cpp
         include/Utils.h
         src/Utils.cpp
         include/Hunter.h
-        src/Hunter.cpp)
+        src/Hunter.cpp
+        include/Terrain.h
+        include/Terrain.h)
 
 target_include_directories(GD2_CPP_CA3 PRIVATE include)
 

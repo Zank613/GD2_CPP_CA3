@@ -1,6 +1,7 @@
 #include "ConsoleRenderer.h"
 #include "Hopper.h"
 #include "Utils.h"
+#include "Terrain.h"
 
 #include <iostream>
 #include <sstream>
@@ -53,6 +54,33 @@ std::string ConsoleRenderer::colourToAnsi(Colour colour) const {
             return ANSI_MAGENTA;
         case Colour::CYAN:
             return ANSI_CYAN;
+        case Colour::GREY:
+            return ANSI_GREY;
+        case Colour::WHITE:
+            return ANSI_WHITE;
+
+        case Colour::BRIGHT_RED:
+            return ANSI_BRIGHT_RED;
+        case Colour::BRIGHT_GREEN:
+            return ANSI_BRIGHT_GREEN;
+        case Colour::BRIGHT_YELLOW:
+            return ANSI_BRIGHT_YELLOW;
+        case Colour::BRIGHT_BLUE:
+            return ANSI_BRIGHT_BLUE;
+        case Colour::BRIGHT_MAGENTA:
+            return ANSI_BRIGHT_MAGENTA;
+        case Colour::BRIGHT_CYAN:
+            return ANSI_BRIGHT_CYAN;
+        case Colour::BRIGHT_WHITE:
+            return ANSI_BRIGHT_WHITE;
+
+        case Colour::ORANGE:
+            return ANSI_ORANGE;
+        case Colour::BROWN:
+            return ANSI_BROWN;
+        case Colour::DARK_GREEN:
+            return ANSI_DARK_GREEN;
+
         case Colour::BOLD:
             return ANSI_BOLD;
         default:
@@ -74,6 +102,20 @@ std::string ConsoleRenderer::bugSymbol(const Bug* bug) const {
     }
 
     return utils::bugTypeToSymbol(bug->getType());
+}
+
+std::string ConsoleRenderer::terrainSymbol(TerrainType terrain) const {
+    switch (terrain) {
+        case TerrainType::MUD:
+            return "M";
+        case TerrainType::ROCK:
+            return "R";
+        case TerrainType::FOOD:
+            return "F";
+        case TerrainType::NORMAL:
+        default:
+            return ".";
+    }
 }
 
 void ConsoleRenderer::printBugDetails(const Bug* bug) const {
@@ -143,7 +185,8 @@ void ConsoleRenderer::printLifeHistory(const Bug* bug) const {
     std::cout << "\n";
 }
 
-void ConsoleRenderer::renderBoard(const std::map<std::pair<int, int>, std::vector<Bug*>>& cellOccupants) const {
+void ConsoleRenderer::renderBoard( const std::map<std::pair<int, int>, std::vector<Bug*>>& cellOccupants,
+    const TerrainType terrainGrid[utils::BOARD_SIZE][utils::BOARD_SIZE]) const {
     if (!showVisual) {
         return;
     }
@@ -152,7 +195,23 @@ void ConsoleRenderer::renderBoard(const std::map<std::pair<int, int>, std::vecto
 
     for (int y = 0; y < utils::BOARD_SIZE; y++) {
         for (int x = 0; x < utils::BOARD_SIZE; x++) {
-            board[y][x] = ".";
+            std::string symbol = terrainSymbol(terrainGrid[y][x]);
+
+            switch (terrainGrid[y][x]) {
+                case TerrainType::MUD:
+                    board[y][x] = applyColour(symbol, Colour::BROWN);
+                    break;
+                case TerrainType::ROCK:
+                    board[y][x] = applyColour(symbol, Colour::GREY);
+                    break;
+                case TerrainType::FOOD:
+                    board[y][x] = applyColour(symbol, Colour::BRIGHT_GREEN);
+                    break;
+                case TerrainType::NORMAL:
+                default:
+                    board[y][x] = symbol;
+                    break;
+            }
         }
     }
 
