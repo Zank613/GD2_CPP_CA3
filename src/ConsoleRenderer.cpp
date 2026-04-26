@@ -35,7 +35,7 @@ void ConsoleRenderer::setDebugEnabled(bool enabled) {
     debugMode = enabled;
 }
 
-std::string ConsoleRenderer::colourToAnsi(Colour colour) const {
+const char* ConsoleRenderer::colourToAnsi(Colour colour) const {
     if (!useColour) {
         return "";
     }
@@ -94,7 +94,13 @@ std::string ConsoleRenderer::applyColour(const std::string& text, Colour colour)
         return text;
     }
 
-    return colourToAnsi(colour) + text + colourToAnsi(Colour::RESET);
+    const char* prefix = colourToAnsi(colour);
+
+    if (prefix[0] == '\0') {
+        return text;
+    }
+
+    return std::string(prefix) + text + ANSI_RESET;
 }
 
 std::string ConsoleRenderer::bugSymbol(const Bug* bug) const {

@@ -36,14 +36,54 @@ std::string directionToString(Direction direction);
  * @param steps Number of squares to move.
  * @return New position before any boundary clamping.
  */
-std::pair<int, int> nextPosition(std::pair<int, int> position, Direction direction, int steps);
+inline std::pair<int, int> nextPosition(std::pair<int, int> position, Direction direction, int steps) {
+    int x = position.first;
+    int y = position.second;
+
+    switch (direction) {
+        case Direction::NORTH:
+            y -= steps;
+            break;
+        case Direction::EAST:
+            x += steps;
+            break;
+        case Direction::SOUTH:
+            y += steps;
+            break;
+        case Direction::WEST:
+            x -= steps;
+            break;
+        default:
+            break;
+    }
+
+    return {x, y};
+}
 
 /**
  * @brief Clamps a position so it remains inside the 10x10 board.
  * @param position Position to clamp.
  * @return Position adjusted to valid board bounds.
  */
-std::pair<int, int> clampPositionToBoard(std::pair<int, int> position);
+inline std::pair<int, int> clampPositionToBoard(std::pair<int, int> position) {
+    int x = position.first;
+    int y = position.second;
+
+    if (x < 0) {
+        x = 0;
+    }
+    if (x > BOARD_MAX_INDEX) {
+        x = BOARD_MAX_INDEX;
+    }
+    if (y < 0) {
+        y = 0;
+    }
+    if (y > BOARD_MAX_INDEX) {
+        y = BOARD_MAX_INDEX;
+    }
+
+    return {x, y};
+}
 
 /**
  * @brief Converts a path list into a comma-separated string.

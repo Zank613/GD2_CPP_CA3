@@ -90,37 +90,50 @@ public:
      * @brief Returns whether the bug is still alive.
      * @return true if alive, false if dead.
      */
-    bool isAlive() const;
+    inline bool isAlive() const {
+        return alive;
+    }
 
     /**
      * @brief Gets bug id.
      * @return Unique id.
      */
-    int getId() const;
+    inline int getId() const {
+        return id;
+    }
 
     /**
      * @brief Gets current health.
      * @return Current health value.
      */
-    int getHealth() const;
+    inline int getHealth() const {
+        return health;
+    }
 
     /**
      * @brief Gets current position.
      * @return Current (x, y) position.
      */
-    std::pair<int, int> getPosition() const;
+    inline std::pair<int, int> getPosition() const {
+        return position;
+    }
 
     /**
      * @brief Gets the full recorded path of the bug.
      * @return Read-only reference to the path history.
      */
-    const std::list<std::pair<int, int>>& getPath() const;
+    inline const std::list<std::pair<int, int>>& getPath() const {
+        return path;
+    }
 
     /**
      * @brief Gets current direction.
      * @return Current facing direction.
      */
-    Direction getDirection() const;
+    inline Direction getDirection() const {
+        return direction;
+    }
+
 
     /**
      * @brief Updates the bug's position and records it in the path.
@@ -144,7 +157,10 @@ public:
      * @brief Gets the id of the bug that ate this bug.
      * @return Eater id, or -1 if this bug has not been eaten.
      */
-    int getEatenById() const;
+    inline int getEatenById() const {
+        return eatenById;
+    }
+
 
     /**
      * @brief Records which bug ate this bug.
@@ -162,19 +178,25 @@ public:
      * @brief Gets the board pointer used by this bug.
      * @return Current board pointer.
      */
-    Board* getBoard() const;
+    inline Board* getBoard() const {
+        return board;
+    }
 
     /**
      * @brief Checks whether the bug must skip movement.
      * @return true if stuckTurns is greater than 0.
      */
-    bool isStuck() const;
+    inline bool isStuck() const {
+        return stuckTurns > 0;
+    }
 
     /**
      * @brief Gets the remaining stuck turns.
      * @return Number of movement turns still to skip.
      */
-    int getStuckTurns() const;
+    inline int getStuckTurns() const {
+        return stuckTurns;
+    }
 
     /**
      * @brief Sets how many movement turns this bug must skip.

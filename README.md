@@ -192,3 +192,71 @@ Optional:
 - [ ] Add weather states
 - [ ] Modify scent decay
 - [ ] Affect terrain or bugs
+
+# Miscellaneous
+## Performance Optimization
+
+For performance optimization I will repeatedly check for performance using GCC's
+own performance profiling build options.
+
+Then I will try to figure out which parts can be optimized and fixed. I will also
+include some graphs here if I can for results and comparison.
+
+### Build Comparison
+
+| File                  | Before Optimization | After Optimization | Change       |
+|-----------------------|---------------------|--------------------|--------------|
+| `Bug.cpp`             | 0.21s               | 0.18s              | 0.03s faster |
+| `Utils.cpp`           | 0.27s               | 0.25s              | 0.02s faster |
+| `Crawler.cpp`         | 0.33s               | 0.30s              | 0.03s faster |
+| `Hopper.cpp`          | 0.34s               | 0.30s              | 0.04s faster |
+| `ConsoleRenderer.cpp` | 0.37s               | 0.33s              | 0.04s faster |
+| `main.cpp`            | 0.43s               | 0.37s              | 0.06s faster |
+| `Hunter.cpp`          | 0.49s               | 0.43s              | 0.06s faster |
+| `Board.cpp`           | 0.77s               | 0.64s              | 0.13s faster |
+
+The optimization pass improved measured build performance by approximately 12.8%. Across the compared source files, 
+total compile time decreased from 3.21 seconds before optimization to 2.80 seconds after optimization, 
+meaning the optimised build used around 87.2% of the original compile time.
+
+### Runtime Comparison
+
+After downloading Intel vTune and painstakingly learning how to read the logs from it
+I tested runtime performance of the game.
+
+Parameters for both tests:
+
+```bash
+.\GD2_CPP_CA3.exe --seed 446056276
+```
+
+| Metric | Before optimisation | After optimisation |               Change | Interpretation |
+|---|---:|---:|---------------------:|---|
+| IPC | 0.656 | 0.715 |                +9.0% | Better instruction throughput overall |
+| P-core IPC | 0.649 | 0.808 |               +24.5% | Significant improvement on performance cores |
+| E-core IPC | 0.670 | 0.549 |               -18.1% | E-core efficiency dropped, but P-core IPC improved strongly |
+| Average CPU frequency | 4.1 GHz | 4.2 GHz |                +2.4% | Slightly higher average clock speed |
+| Logical core utilisation | 1.8% | 1.3% |                -0.5% | Program used less total CPU time overall |
+| Average logical cores used | 0.427 / 24 | 0.310 / 24 |               -27.4% | Less CPU occupancy overall |
+| Microarchitecture usage | 8.7% | 10.0% |                +1.3% | CPU pipeline was slightly more active |
+| P-core retiring | 8.7% | 11.1% |                +2.4% | More useful work was completed by the CPU |
+| P-core front-end bound | 21.3% | 23.6% |                +2.3% | Slightly more instruction-fetch/decode limitation |
+| P-core back-end bound | 71.0% | 72.7% |                +1.7% | Still heavily back-end bound |
+| P-core memory bound | 56.1% | 48.9% |                -7.2% | Less memory/cache waiting after optimisation |
+| P-core cache bound | 47.3% | 38.5% |                -8.8% | Fewer cache-related stalls |
+| P-core L1 bound | 9.9% | 11.1% |                +1.2% | Slightly more L1 cache pressure |
+| P-core L2 bound | 28.1% | 19.1% |                -9.0% | Strong reduction in L2-related stalls |
+| P-core L3 bound | 9.3% | 8.4% |                -0.9% | Small reduction in L3-related stalls |
+| P-core DRAM bound | 10.0% | 13.2% |                +3.2% | Slightly more main-memory waiting |
+| P-core core bound | 14.9% | 23.8% |                +8.9% | More stalls are now core-side rather than memory-side |
+| Average DRAM bandwidth | 1.130 GB/s | 1.053 GB/s |                -6.8% | Slightly less memory bandwidth used |
+| Vectorization | 86.5% | 88.5% |                +2.0% | Slight improvement, though the program is not vector-heavy |
+| GPU active time | 0.1% | 0.1% | No meaningful change | Expected for a console-based program |
+
+I say this is rather went well optimization applied to the game. Even though
+my optimizations were simpler the report suggest there were some meaningful performance
+optimization going on.
+
+As a note most of the performance can be significantly improved if
+the game was launched with `--fast` command as there will be no `std::cout`
+every single line and game will not wait and finish quickly as possible.

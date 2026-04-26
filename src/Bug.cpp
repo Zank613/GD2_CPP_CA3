@@ -28,30 +28,6 @@ bool Bug::isWayBlocked() const {
     }
 }
 
-bool Bug::isAlive() const {
-    return alive;
-}
-
-int Bug::getId() const {
-    return id;
-}
-
-int Bug::getHealth() const {
-    return health;
-}
-
-std::pair<int, int> Bug::getPosition() const {
-    return position;
-}
-
-const std::list<std::pair<int, int>>& Bug::getPath() const {
-    return path;
-}
-
-Direction Bug::getDirection() const {
-    return direction;
-}
-
 void Bug::setPosition(const std::pair<int, int>& newPosition) {
     position = newPosition;
     path.push_back(newPosition);
@@ -70,28 +46,12 @@ void Bug::takeDamage(int damage) {
     }
 }
 
-int Bug::getEatenById() const {
-    return eatenById;
-}
-
 void Bug::setEatenById(int eaterID) {
     eatenById = eaterID;
 }
 
 void Bug::setBoard(Board* board) {
     this->board = board;
-}
-
-Board* Bug::getBoard() const {
-    return board;
-}
-
-bool Bug::isStuck() const {
-    return stuckTurns > 0;
-}
-
-int Bug::getStuckTurns() const {
-    return stuckTurns;
 }
 
 void Bug::setStuckTurns(int turns) {

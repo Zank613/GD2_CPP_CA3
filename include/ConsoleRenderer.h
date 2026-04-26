@@ -133,7 +133,7 @@ public:
      * @param colour Logical colour value.
      * @return ANSI escape sequence, or an empty string if colour is disabled.
      */
-    std::string colourToAnsi(Colour colour) const;
+    const char* colourToAnsi(Colour colour) const;
 
     /**
      * @brief Wraps text in a colour if colour output is enabled.

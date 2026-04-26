@@ -121,6 +121,7 @@ int Board::countAliveBugs() const {
 
 int Board::getRandomAliveBugIndex() const {
     std::vector<int> aliveIndices;
+    aliveIndices.reserve(bugs.size());      // Make the vector allocate the needed memory ONCE
 
     for (int i = 0; i < static_cast<int>(bugs.size()); i++) {
         if (bugs[i] != nullptr && bugs[i]->isAlive()) {
@@ -143,18 +144,7 @@ void Board::resolveFights() {
     std::uniform_int_distribution<int> damageDist(0, 5);
 
     for (auto& entry : cellOccupants) {
-        std::vector<Bug*> fighters = entry.second;
-
-        // Keep only alive bugs in this cell.
-        fighters.erase(
-            std::remove_if(
-                fighters.begin(),
-                fighters.end(),
-                [](Bug* bug) {
-                    return bug == nullptr || !bug->isAlive();
-                }),
-            fighters.end()
-        );
+        std::vector<Bug*>& fighters = entry.second;         // Use reference instead of copying.
 
         // If fewer than 2 alive bugs are here, no fight happens.
         if (fighters.size() < 2) {
@@ -255,6 +245,7 @@ void Board::initializeFromFile(const std::string& filename) {
 
         std::stringstream ss(line);
         std::vector<std::string> parts;
+        parts.reserve(7);       // Bug lines have a known small number of fields.
         std::string token;
 
         while (std::getline(ss, token, ';')) {
@@ -326,8 +317,14 @@ void Board::tapBoard() {
 
     int frozenIndex = getRandomAliveBugIndex();
 
+    if (renderer != nullptr && renderer->isDebugEnabled() && frozenIndex != -1) {
+        renderer->printDebug("Frozen bug id: " + std::to_string(bugs[frozenIndex]->getId()));
+    }
+
     for (int i = 0; i < static_cast<int>(bugs.size()); i++) {
-        if (bugs[i] == nullptr || !bugs[i]->isAlive()) {
+        Bug* bug = bugs[i];
+
+        if (bug == nullptr || !bug->isAlive()) {
             continue;
         }
 
@@ -335,15 +332,12 @@ void Board::tapBoard() {
             continue;
         }
 
-        if (renderer != nullptr && renderer->isDebugEnabled() && frozenIndex != -1) {
-            renderer->printDebug("Frozen bug id: " + std::to_string(bugs[frozenIndex]->getId()));
-        }
+        bug->move();
+        applyTerrainEffect(bug);
 
-        bugs[i]->move();
-        applyTerrainEffect(bugs[i]);
         // Hunter type of bug, doesn't leave any scent.
-        if (bugs[i]->getType() != "Hunter") {
-            depositScent(bugs[i]->getPosition(), 1.0);
+        if (dynamic_cast<Hunter*>(bug) == nullptr) {
+            depositScent(bug->getPosition(), 1.0);
         }
     }
 
@@ -404,17 +398,21 @@ void Board::displayAllCells() const {
 }
 
 void Board::runSimulation() {
+    bool showStepOutput = renderer == nullptr || renderer->isVisualEnabled();
+
     while (!isSimulationOver()) {
         tapBoard();
 
-        if (renderer != nullptr) {
-            renderer->printStatus("Tap: " + std::to_string(tapCount));
-        } else {
-            std::cout << "Tap: " << tapCount << "\n";
-        }
+        if (showStepOutput) {
+            if (renderer != nullptr) {
+                renderer->printStatus("Tap: " + std::to_string(tapCount));
+            } else {
+                std::cout << "Tap: " << tapCount << "\n";
+            }
 
-        displayAllBugs();
-        std::cout << "\n";
+            displayAllBugs();
+            std::cout << "\n";
+        }
 
         if (simulationDelayMs > 0) {
             std::this_thread::sleep_for(std::chrono::milliseconds(simulationDelayMs));

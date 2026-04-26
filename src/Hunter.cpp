@@ -15,6 +15,7 @@ Hunter::Hunter(int id, std::pair<int, int> position, Direction direction, int he
 
 std::vector<Hunter::Option> Hunter::collectOptions(bool avoidImmediateReverse) const {
     std::vector<Option> options;
+    options.reserve(4);         // Only 4 options can be made so, allocate only ONCE.
 
     const Direction allDirections[] = {
         Direction::NORTH,
