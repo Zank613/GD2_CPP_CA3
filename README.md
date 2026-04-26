@@ -47,7 +47,7 @@ I suggest using Terminal that supports ANSI colours for normal usage. (e.g. Wind
 - Derived Bug types:
   - Crawler
   - Hopper
-  - Hunter Bug (tracks scent instead of direct detection) uses scent
+  - Hunter Bug (tracks scent instead of direct detection)
 - Movement system with direction and boundary handling
 - Bug interactions
 - File input
@@ -61,9 +61,6 @@ I suggest using Terminal that supports ANSI colours for normal usage. (e.g. Wind
 - Scent system with dissipation over time
 - Terrain system with traversal effects
 - ASCII based heatmaps and graphs (simulation analytics)
-
-Optional:
-- Weather system affecting scent decay and environment
 
 # Simulation Systems
 
@@ -185,10 +182,11 @@ Optional:
 - [x] Visit heatmap
 - [x] Fight heatmap
 
-~~- [ ] Alive bugs graph~~ _Removed due to being unnecessary._
+~~Alive bugs graph~~ _Removed due to being unnecessary._
 
 ## Stage 12 - Optional Weather
 
+- [ ] Discuss with lecturer about feasibility and feature creep problem
 - [ ] Add weather states
 - [ ] Modify scent decay
 - [ ] Affect terrain or bugs
@@ -201,6 +199,11 @@ own performance profiling build options.
 
 Then I will try to figure out which parts can be optimized and fixed. I will also
 include some graphs here if I can for results and comparison.
+
+CMake Profile Flags used for information:
+```cmake
+-DENABLE_GCC_TIME_REPORT=ON -DENABLE_GCC_INCLUDE_TREE=ON
+```
 
 ### Build Comparison
 
@@ -221,7 +224,7 @@ meaning the optimised build used around 87.2% of the original compile time.
 
 ### Runtime Comparison
 
-After downloading Intel vTune and painstakingly learning how to read the logs from it
+After downloading [Intel VTune](https://www.intel.com/content/www/us/en/developer/tools/oneapi/vtune-profiler.html) and painstakingly learning how to read the logs from it,
 I tested runtime performance of the game.
 
 Parameters for both tests:
@@ -229,6 +232,7 @@ Parameters for both tests:
 ```bash
 .\GD2_CPP_CA3.exe --seed 446056276
 ```
+This seed was chosen because Tap counts were at a rather small count: 84.
 
 | Metric | Before optimisation | After optimisation |               Change | Interpretation |
 |---|---:|---:|---------------------:|---|
@@ -257,6 +261,13 @@ I say this is rather went well optimization applied to the game. Even though
 my optimizations were simpler the report suggest there were some meaningful performance
 optimization going on.
 
-As a note most of the performance can be significantly improved if
+Note 1: Most of the performance can be significantly improved if
 the game was launched with `--fast` command as there will be no `std::cout`
 every single line and game will not wait and finish quickly as possible.
+
+Note 2: Your CPU might not have E core and P core specifications as mine
+is one of the latest generation Intel based CPU. ([Intel Core Ultra 9 275HX](https://www.intel.com/content/www/us/en/products/sku/242293/intel-core-ultra-9-processor-275hx-36m-cache-up-to-5-40-ghz/specifications.html))
+
+Note 3: These comparisons have been made with Debug build profile chosen. As such if
+Release build was chosen the results would be even more significant as I hope CLion uses `-O2`
+compile optimization flag or even `-O3`
