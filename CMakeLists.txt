@@ -60,3 +60,68 @@ add_custom_command(TARGET GD2_CPP_CA3 POST_BUILD
         ${CMAKE_SOURCE_DIR}/data
         $<TARGET_FILE_DIR:GD2_CPP_CA3>/data
 )
+
+include(FetchContent)
+
+FetchContent_Declare(SFML
+        GIT_REPOSITORY https://github.com/SFML/SFML.git
+        GIT_TAG 3.0.2
+        GIT_SHALLOW ON
+        EXCLUDE_FROM_ALL
+        SYSTEM
+)
+
+FetchContent_MakeAvailable(SFML)
+
+add_executable(GD2_CPP_CA3_SFML
+        src/main_sfml.cpp
+        include/SfmlGame.h
+        src/SfmlGame.cpp
+        include/TextureManager.h
+        src/TextureManager.cpp
+
+        include/Bug.h
+        src/Bug.cpp
+        include/Crawler.h
+        src/Crawler.cpp
+        include/Hopper.h
+        src/Hopper.cpp
+        include/Hunter.h
+        src/Hunter.cpp
+        include/Board.h
+        src/Board.cpp
+        include/Seeder.h
+        src/Seeder.cpp
+        include/ConsoleRenderer.h
+        src/ConsoleRenderer.cpp
+        include/Utils.h
+        src/Utils.cpp
+        include/Terrain.h
+        include/TextureManager.h
+        include/SfmlGame.h
+        src/SfmlGame.cpp
+        src/main_sfml.cpp
+)
+
+target_include_directories(GD2_CPP_CA3_SFML PRIVATE include)
+
+target_link_libraries(GD2_CPP_CA3_SFML
+        PRIVATE
+        SFML::Graphics
+        SFML::Window
+        SFML::System
+)
+
+add_custom_command(TARGET GD2_CPP_CA3_SFML POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/data
+        $<TARGET_FILE_DIR:GD2_CPP_CA3_SFML>/data
+)
+
+if(EXISTS "${CMAKE_SOURCE_DIR}/assets")
+    add_custom_command(TARGET GD2_CPP_CA3_SFML POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/assets
+            $<TARGET_FILE_DIR:GD2_CPP_CA3_SFML>/assets
+    )
+endif()

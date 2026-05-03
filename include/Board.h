@@ -25,7 +25,6 @@
  * does not leak its internal containers outside as brief rules.
  */
 class Board {
-
     std::vector<Bug*> bugs;
     std::map<std::pair<int, int>, std::vector<Bug*>> cellOccupants;
     int tapCount;
@@ -52,6 +51,47 @@ class Board {
      * Fast mode sets this to 0 so the simulation runs without waiting.
      */
     int simulationDelayMs;
+
+public:
+    /**
+     * @brief Stores one attack inside a fight.
+     */
+    struct CombatAction {
+        int attackerId;
+        std::string attackerType;
+
+        int targetId;
+        std::string targetType;
+
+        int damage;
+    };
+
+    /**
+     * @brief Stores information about a fight that happened this turn.
+     */
+    struct FightEvent {
+        int firstId;
+        std::string firstType;
+
+        int secondId;
+        std::string secondType;
+
+        int winnerId;
+        int loserId;
+
+        std::pair<int, int> position;
+
+        /**
+         * @brief Turn-by-turn damage events from this fight.
+         */
+        std::vector<CombatAction> actions;
+    };
+
+private:
+    /**
+     * @brief Fights that happened during the most recent tap/playable turn.
+     */
+    std::vector<FightEvent> recentFightEvents;
 
     /**
      * @brief Finds a bug internally by id.
@@ -181,6 +221,27 @@ class Board {
      * @param visitHeatmap Output 10x10 visit heatmap.
      */
     void buildVisitHeatmap(int visitHeatmap[utils::BOARD_SIZE][utils::BOARD_SIZE]) const;
+
+    /**
+     * @brief Applies common post-move effects to a bug.
+     *
+     * This includes terrain effects and scent deposition.
+     *
+     * @param bug Bug that just moved.
+     */
+    void applyMoveConsequences(Bug* bug);
+
+    /**
+     * @brief Moves a player-controlled bug without using random AI direction logic.
+     *
+     * Crawler and Hunter move one square. Hopper moves by hop length and can jump
+     * over rock, but cannot land on rock.
+     *
+     * @param bug Player-controlled bug.
+     * @param direction Direction chosen by the player.
+     * @return true if the move consumed a turn.
+     */
+    bool movePlayerBug(Bug* bug, Direction direction);
 
 public:
     /**
@@ -331,6 +392,50 @@ public:
      * @brief Displays visit and fight heatmaps after the simulation is complete.
      */
     void displayHeatmaps() const;
+
+    /**
+     * @brief Gets read-only access to all bugs.
+     * @return Vector containing all bug pointers.
+     */
+    const std::vector<Bug*>& getBugs() const;
+
+    /**
+     * @brief Gets the number of alive bugs.
+     * @return Alive bug count.
+     */
+    int getAliveBugCount() const;
+
+    /**
+     * @brief Creates a player-controlled bug and adds it to the board.
+     * @param bugType Type character: 'C', 'H', or 'U'.
+     * @param id Player bug id.
+     * @param position Starting position.
+     * @return Pointer to the created player bug, or nullptr if the type is invalid.
+     */
+    Bug* createPlayerBug(char bugType, int id, const std::pair<int, int>& position);
+
+    /**
+     * @brief Performs one playable turn.
+     *
+     * The player attempts to move first. If the movement is valid, or if the
+     * player is stuck and must skip the turn, the rest of the bugs then move.
+     *
+     * @param playerBug Player-controlled bug.
+     * @param direction Direction chosen by the player.
+     * @return true if a turn was consumed, false if the movement was invalid.
+     */
+    bool playableTurn(Bug* playerBug, Direction direction);
+
+    /**
+     * @brief Gets fight events recorded during the most recent turn.
+     * @return Read-only list of recent fight events.
+     */
+    const std::vector<FightEvent>& getRecentFightEvents() const;
+
+    /**
+     * @brief Clears fight events from the previous turn.
+     */
+    void clearRecentFightEvents();
 };
 
 #endif

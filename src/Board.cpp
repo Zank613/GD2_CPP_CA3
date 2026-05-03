@@ -25,7 +25,10 @@
  * @param title Heatmap title.
  * @param heatmap Heatmap grid.
  */
-void writeHeatmapToStream(std::ostream& output, const std::string& title, const int heatmap[utils::BOARD_SIZE][utils::BOARD_SIZE]) {
+void writeHeatmapToStream(
+    std::ostream& output,
+    const std::string& title,
+    const int heatmap[utils::BOARD_SIZE][utils::BOARD_SIZE]) {
     output << "\n" << title << "\n";
     output << "    0  1  2  3  4  5  6  7  8  9\n";
 
@@ -167,19 +170,46 @@ void Board::resolveFights() {
             Bug* first = fighters[i];
             Bug* second = fighters[i + 1];
 
+            if (first == nullptr || second == nullptr || !first->isAlive() || !second->isAlive()) {
+                continue;
+            }
+
             recordFightAt(entry.first);
 
-            // Fight lasts up to 3 rounds.
+            int firstId = first->getId();
+            int secondId = second->getId();
+            std::string firstType = first->getType();
+            std::string secondType = second->getType();
+
+            std::vector<CombatAction> actions;
+            actions.reserve(8);
+
             for (int round = 0; round < 3; round++) {
                 if (!first->isAlive() || !second->isAlive()) {
                     break;
                 }
 
-                int damageToFirst = damageDist(rng);
                 int damageToSecond = damageDist(rng);
+                int damageToFirst = damageDist(rng);
 
-                first->takeDamage(damageToFirst);
+                actions.push_back({
+                    firstId,
+                    firstType,
+                    secondId,
+                    secondType,
+                    damageToSecond
+                });
+
+                actions.push_back({
+                    secondId,
+                    secondType,
+                    firstId,
+                    firstType,
+                    damageToFirst
+                });
+
                 second->takeDamage(damageToSecond);
+                first->takeDamage(damageToFirst);
 
                 if (!first->isAlive() && second->isAlive()) {
                     first->setEatenById(second->getId());
@@ -195,22 +225,84 @@ void Board::resolveFights() {
             // If both are still alive after 3 rounds, force a winner.
             if (first->isAlive() && second->isAlive()) {
                 if (first->getHealth() > second->getHealth()) {
+                    int finishingDamage = second->getHealth();
+
+                    actions.push_back({
+                        firstId,
+                        firstType,
+                        secondId,
+                        secondType,
+                        finishingDamage
+                    });
+
                     second->setEatenById(first->getId());
-                    second->takeDamage(second->getHealth());
+                    second->takeDamage(finishingDamage);
                 } else if (second->getHealth() > first->getHealth()) {
+                    int finishingDamage = first->getHealth();
+
+                    actions.push_back({
+                        secondId,
+                        secondType,
+                        firstId,
+                        firstType,
+                        finishingDamage
+                    });
+
                     first->setEatenById(second->getId());
-                    first->takeDamage(first->getHealth());
+                    first->takeDamage(finishingDamage);
                 } else {
                     // Deterministic tie-break: lower id wins.
                     if (first->getId() < second->getId()) {
+                        int finishingDamage = second->getHealth();
+
+                        actions.push_back({
+                            firstId,
+                            firstType,
+                            secondId,
+                            secondType,
+                            finishingDamage
+                        });
+
                         second->setEatenById(first->getId());
-                        second->takeDamage(second->getHealth());
+                        second->takeDamage(finishingDamage);
                     } else {
+                        int finishingDamage = first->getHealth();
+
+                        actions.push_back({
+                            secondId,
+                            secondType,
+                            firstId,
+                            firstType,
+                            finishingDamage
+                        });
+
                         first->setEatenById(second->getId());
-                        first->takeDamage(first->getHealth());
+                        first->takeDamage(finishingDamage);
                     }
                 }
             }
+
+            int winnerId = -1;
+            int loserId = -1;
+
+            if (first->isAlive() && !second->isAlive()) {
+                winnerId = first->getId();
+                loserId = second->getId();
+            } else if (second->isAlive() && !first->isAlive()) {
+                winnerId = second->getId();
+                loserId = first->getId();
+            }
+
+            recentFightEvents.push_back({
+                firstId,
+                firstType,
+                secondId,
+                secondType,
+                winnerId,
+                loserId,
+                entry.first,
+                actions
+            });
         }
     }
 
@@ -235,6 +327,7 @@ void Board::initializeFromFile(const std::string& filename) {
     initializeScentGrid();
     initializeTerrainGrid();
     initializeFightHeatmap();
+    clearRecentFightEvents();
 
     std::string line;
 
@@ -252,7 +345,7 @@ void Board::initializeFromFile(const std::string& filename) {
             parts.push_back(token);
         }
 
-        if (parts.empty()) {
+        if (parts.size() < 6) {
             continue;
         }
 
@@ -267,7 +360,7 @@ void Board::initializeFromFile(const std::string& filename) {
 
         if (bugType == 'C') {
             bug = new Crawler(id, {x, y}, direction, health);
-        } else if (bugType == 'H') {
+        } else if (bugType == 'H' && parts.size() >= 7) {
             int hopLength = std::stoi(parts[6]);
             bug = new Hopper(id, {x, y}, direction, health, hopLength);
         } else if (bugType == 'U') {
@@ -313,6 +406,8 @@ void Board::tapBoard() {
         return;
     }
 
+    clearRecentFightEvents();
+
     tapCount++;
 
     int frozenIndex = getRandomAliveBugIndex();
@@ -332,10 +427,14 @@ void Board::tapBoard() {
             continue;
         }
 
+        if (bug->isStuck()) {
+            bug->decrementStuckTurns();
+            continue;
+        }
+
         bug->move();
         applyTerrainEffect(bug);
 
-        // Hunter type of bug, doesn't leave any scent.
         if (dynamic_cast<Hunter*>(bug) == nullptr) {
             depositScent(bug->getPosition(), 1.0);
         }
@@ -731,4 +830,140 @@ void Board::displayHeatmaps() const {
         renderer->printHeatmap("Visit Heatmap", visitHeatmap);
         renderer->printHeatmap("Fight Heatmap", fightHeatmap);
     }
+}
+
+const std::vector<Bug*>& Board::getBugs() const {
+    return bugs;
+}
+
+int Board::getAliveBugCount() const {
+    return countAliveBugs();
+}
+
+Bug* Board::createPlayerBug(char bugType, int id, const std::pair<int, int>& position) {
+    Bug* bug = nullptr;
+
+    if (bugType == 'C') {
+        bug = new Crawler(id, position, Direction::NORTH, 20);
+    } else if (bugType == 'H') {
+        bug = new Hopper(id, position, Direction::NORTH, 20, 2);
+    } else if (bugType == 'U') {
+        bug = new Hunter(id, position, Direction::NORTH, 20, this);
+    }
+
+    if (bug == nullptr) {
+        return nullptr;
+    }
+
+    bug->setBoard(this);
+    addBug(bug);
+    updateCellOccupants();
+
+    return bug;
+}
+
+void Board::applyMoveConsequences(Bug* bug) {
+    if (bug == nullptr || !bug->isAlive()) {
+        return;
+    }
+
+    applyTerrainEffect(bug);
+
+    if (bug->getType() != "Hunter") {
+        depositScent(bug->getPosition(), 1.0);
+    }
+}
+
+bool Board::movePlayerBug(Bug* bug, Direction direction) {
+    if (bug == nullptr || !bug->isAlive()) {
+        return false;
+    }
+
+    if (bug->isStuck()) {
+        bug->decrementStuckTurns();
+        return true;
+    }
+
+    bug->setDirection(direction);
+
+    std::pair<int, int> oldPosition = bug->getPosition();
+    std::pair<int, int> newPosition = oldPosition;
+
+    Hopper* hopper = dynamic_cast<Hopper*>(bug);
+
+    if (hopper != nullptr) {
+        newPosition = utils::nextPosition(oldPosition, direction, hopper->getHopLength());
+        newPosition = utils::clampPositionToBoard(newPosition);
+
+        if (!isCellTraversable(newPosition)) {
+            return false;
+        }
+    } else {
+        newPosition = utils::nextPosition(oldPosition, direction, 1);
+
+        if (!isWithinBounds(newPosition) || !isCellTraversable(newPosition)) {
+            return false;
+        }
+    }
+
+    if (newPosition == oldPosition) {
+        return false;
+    }
+
+    bug->setPosition(newPosition);
+    applyMoveConsequences(bug);
+
+    return true;
+}
+
+bool Board::playableTurn(Bug* playerBug, Direction direction) {
+    if (playerBug == nullptr || !playerBug->isAlive() || isSimulationOver()) {
+        return false;
+    }
+
+    clearRecentFightEvents();
+
+    bool turnConsumed = movePlayerBug(playerBug, direction);
+
+    if (!turnConsumed) {
+        return false;
+    }
+
+    tapCount++;
+
+    updateCellOccupants();
+    resolveFights();
+
+    if (!playerBug->isAlive()) {
+        decayScent();
+        return true;
+    }
+
+    for (Bug* bug : bugs) {
+        if (bug == nullptr || !bug->isAlive() || bug == playerBug) {
+            continue;
+        }
+
+        if (bug->isStuck()) {
+            bug->decrementStuckTurns();
+            continue;
+        }
+
+        bug->move();
+        applyMoveConsequences(bug);
+    }
+
+    updateCellOccupants();
+    resolveFights();
+    decayScent();
+
+    return true;
+}
+
+const std::vector<Board::FightEvent>& Board::getRecentFightEvents() const {
+    return recentFightEvents;
+}
+
+void Board::clearRecentFightEvents() {
+    recentFightEvents.clear();
 }
