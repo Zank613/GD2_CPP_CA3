@@ -3,6 +3,8 @@
 A simulation system where different types of bugs move, interact, fight 
 and evolve over time on a 10x10 board.
 
+# For SFML branch [click here](https://github.com/Zank613/GD2_CPP_CA3/tree/sfml)
+
 # Run
 
 I suggest using Terminal that supports ANSI colours for normal usage. (e.g. Windows Terminal)
