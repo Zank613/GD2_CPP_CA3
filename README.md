@@ -7,3 +7,7 @@
 - Fog of war
 - Visualisation with SFML
 - Battle visualisation
+
+
+## You don't need to have SFML, reload CMake and it will fetch the required dependencies.
+## Then select the correct SFML executable and run either via terminal or CLion.
